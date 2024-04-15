@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="overflow-x: hidden;">
+    <img src="{% static "image/home.jpg" %}" alt="background" class="bg-imgg" style="overflow: hidden;">
+    {% load static %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top" style="box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}" style="display: flex;">
+                <img src="{% static 'image/NCTU-logo-1 (2).png' %}" alt="" style="width: 4rem; height: 4rem;">
+                <div style="margin-right: 10px; margin-top: -7px;">
+                    <p style="margin: 0; font-weight: 900; line-height: 25px; color: #010044;">جامعة</p>
+                    <p style="margin: 0; font-weight: 900; line-height: 25px; color: #010044;">القاهرة الجديدة</p>
+                    <p style="margin: 0; font-weight: 900; line-height: 25px; color: #010044;">التكنولوجية</p>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'home' %}" style="font-size: 18px; font-weight: 500;">الرئيسية</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="start p-5">
+        <h2 style="color: white; margin-top: 20px;">هذا الموقع خاص بالعاملين بجامعة تكنولوجيا الصناعة والطاقة القاهرة الجديدة</h2>
+        <h4 class="pt-4" style="color: white;">يساعدك هذا الموقع على طلب اجازة ومعرفة عدد الاجازات المتبقية والعديد من الخدمات الاخرى</h4>
+        <h4 class="pt-2" style="color: white;">سجل الدخول الان الى موقعنا للحصول على جميع الخدمات المتاحة</h4>
+        <div class="bts text-center pt-5">
+            <a href="{% url "login" %}" class="btn sign-btn m-1">تسجيل الدخول</a>
+            <a href="{% url "signup" %}" class="btn more-btn m-1">إنشاء حساب</a>
+        </div>
+    </section>
+
+    <footer class="fixed-bottom" style=" text-align: center; color: white; ">
+        <hr>
+        تواصل معنا عبر المنصات التالية
+        <div class="sm_footer">
+            <a href="https://www.facebook.com/nctu.edu.eg" target="_blank" class="ps-3"><i class="fa-brands fa-facebook" style="color: #0D7377;"></i></a>
+            <a href="https://nctu.edu.eg/" target="_blank"><i class="fa-solid fa-globe" style="color: #0D7377;" class="ps-2"></i></a>
+        </div>
+        <p><span class="p-2">info@nctu.edu.eg</span>
+            <i class="fa-solid fa-message"></i>
+        </p>
+    </footer>
+</body>
+
+{% endblock content %}

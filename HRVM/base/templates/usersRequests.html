@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="background-color: #f9fafb;" >
+    
+    <div>
+        <br><br>
+        {% for user in inactive_users %}
+            <div style="margin: 0px 10px;">
+                <section class="profile container p-3 pt-4">
+                    <div class="col-md-6" style="display: flex; align-items: center; width: 100%; justify-content: space-between;">
+                        <div style="width: 100%; display: flex; align-items: center;">
+                            <img class="avatar" src="{% static "image/avatar.svg" %}" style="max-width: 50px; max-height: 50px; margin-left: 10px;" />
+                            <a href="{% url "AcceptUsers" user.username %}" style=" text-decoration: none; color: #2e2e2e;"><h3 style="display: inline; margin: 0px;">{{user.name}}</h3></a>
+                        </div>
+                        <div style="min-width: 135px; box-sizing:content-box; width: 34%;">
+                            <a href="{% url "updateUser" user.username %}" class="btn save-btn ms-2">قبول</a>
+                            <a href="{% url "deleteUser" user.username %}" class="btn cancel-btn ">رفض</a>
+                        </div>
+                    </div>
+                    <div class="Details pt-5 fs-5">
+                        <div class="row">
+                            <div >
+                                <span class="ps-5">تاريخ طلب الانضمام: {{ user.date_joined|date:"Y-m-d" }}</span>
+                                <span>المنصب الوظيفي: {{ user.department }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        {% empty %}
+            <div style="margin: 0px 10px;">
+                <section class="profile container p-3 pt-4">
+                    <div class="col-md-6" style="display: flex; align-items: center; width: 100%; justify-content: space-between;">
+                        <div style="width: 400px; display: flex; align-items: center;">
+                            <img class="avatar" src="{% static "image/avatar.svg" %}" style="max-width: 50px; max-height: 50px; margin-left: 10px;" />
+                            <h3 style="display: inline; margin: 0px;">لا يوجد طلبات انضمام</h3>
+                        </div>
+                        <div style="min-width: 135px; box-sizing:content-box;">
+                        </div>
+                    </div>
+                    <div class="Details pt-5 fs-5">
+                        <div class="row">
+                            <div >
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        {% endfor %}
+    </div>
+    <br>
+</body>
+{% endblock content %}

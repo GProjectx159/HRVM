@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center" style="height: 738px;">
+    <div class="text-center">
+        <h1 class="display-4">خطأ 404</h1>
+        <p class="lead">عذرا، لم يتم العثور على الصفحة التي تبحث عنها.</p>
+        <a href="{% url 'home' %}" class="btn save-btn">العودة إلى الصفحة الرئيسية</a>
+    </div>
+</div>
+
+{% endblock content %}

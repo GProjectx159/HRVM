@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="overflow: hidden;">
+    <img src="{% static "image/home.jpg" %}" alt="background" class="bg-imgg" style="overflow: hidden;">
+      
+    <section class="start p-5">
+      <h2 style="color: white; margin-top: 20px;">هذا الموقع خاص بالعاملين بجامعة تكنولوجيا الصناعة والطاقة القاهرة الجديدة</h2>
+      <h4 class="pt-4" style="color: white;">يساعدك هذا الموقع على طلب اجازة ومعرفة عدد الاجازات المتبقية والعديد من الخدمات الاخرى</h4>
+      <h4 class="pt-2" style="color: white;">مرحبا بكم في موقعنا.</h4>
+      <div class="bts text-center pt-5">
+          <!-- <a href="{% url "login" %}" class="btn sign-btn m-1">تسجيل الدخول</a> -->
+          <!-- <a href="{% url "signup" %}" class="btn more-btn m-1">إنشاء حساب</a> -->
+      </div>
+  </section>
+
+  <footer class="fixed-bottom" style=" text-align: center; color: white; ">
+      <hr>
+      تواصل معنا عبر المنصات التالية
+      <div class="sm_footer">
+          <a href="https://www.facebook.com/nctu.edu.eg" target="_blank" class="ps-3"><i class="fa-brands fa-facebook" style="color: #0D7377;"></i></a>
+          <a href="https://nctu.edu.eg/" target="_blank"><i class="fa-solid fa-globe" style="color: #0D7377;" class="ps-2"></i></a>
+      </div>
+      <p><span class="p-2">info@nctu.edu.eg</span>
+          <i class="fa-solid fa-message"></i>
+      </p>
+  </footer>
+  </body>
+
+{% endblock content %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<body style="background-image: url('{% static 'image/background.jpg' %}'); background-size: cover; background-attachment: fixed;">
+        
+  <div style="margin: 0px 10px;">
+  <section class="sign">
+      <form class="register pt-5" style="direction: rtl;" method="POST">
+        {% csrf_token %}
+          <div class="reg m-auto mt-5 pt-5 pb-5 pl-2 pr-2 container">
+          <h2 class="p-3 pt-1 text-center">إعادة تعيين كلمة المرور</h2>
+          
+          {% if validlink %}
+              {% if form.errors %}
+                <div class="alert alert-danger" role="alert" style="margin-bottom: 30px;">
+                {% for field, errors in form.errors.items %}
+                  {% for error in errors %}
+                    {{ error }} <br>
+                  {% endfor %}
+                {% endfor %}
+                </div>
+              {% else %}
+              <div class="alert alert-success" role="alert" style="margin-bottom: 30px;">
+                يمكنك إعاده تعيين كلمه المرور الخاصه بك.
+              </div>
+              {% endif %}
+              
+            <div class="inputdiv mb-3 d-inline-block">
+              <label for="new_password1">كلمة المرور الجديدة:</label>
+              <br>
+              <input type="password" name="new_password1" id="new_password1" class="input_sign" placeholder="••••••••" required>
+              
+            </div>
+            <div class="inputdiv mb-3 d-inline-block">
+              <label for="new_password2">تأكيد كلمة المرور الجديدة:</label>
+              <br>
+              <input type="password" name="new_password2" id="new_password2" class="input_sign" placeholder="••••••••" required>
+            </div>
+  
+            <input type="submit" value="تأكيد تغيير كلمة المرور" class="login d-block btn m-auto mb-2">
+          {% else %}
+            <div class="alert alert-danger" role="alert" style="margin-bottom: 30px;">
+              رابط إعادة تعيين كلمة المرور غير صحيح أو منتهي الصلاحية.
+            </div>
+          {% endif %}
+          
+          
+      </form>
+  </section>
+</div>
+</body>
+{% endblock content %}

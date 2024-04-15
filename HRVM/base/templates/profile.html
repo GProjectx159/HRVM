@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="background-color: #f9fafb;" >
+    
+    <div style="margin: 0px 10px;">
+        <div class="container" style="padding: 0px; margin-top: 30px;">
+            <div class="d-block text-right">
+                <a class="btn save-btn" href="{% url "requestView" %}">طلب إجازه</a>
+            </div>
+        </div>
+        <section class="profile container p-3 pt-4">
+            <div class="col-md-6" style="display: flex; align-items: center;">
+                <img class="avatar" src="{% static "image/avatar.svg" %}" style="max-width: 50px; max-height: 50px; margin-left: 10px;" />
+                <h2 style="display: inline; margin: 0px;">{{user.username}}</h2>
+            </div>
+            <div class="Details pt-5 fs-7 ">
+                <form method="POST" >
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name">الاســم ربــــــــــــاعي: </label>
+                            <input readonly type="text" name="name" id="name" class="input_profile" value="{{user.name}}">
+                            
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email">البـــريد الإلكتروني:</label>
+                            <input readonly type="email" name="email" id="email" class="input_profile" value="{{user.email}}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="employee_identity">الرقــــم القـــــــومي:</label>
+                            <input readonly type="text" name="employee_identity" id="employee_identity" class="input_profile" value="{{user.employee_identity}}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="phone">رقـــــــم الهـــــــــاتف:</label>
+                            <input readonly type="text" name="phone" id="phone" class="input_profile" value="{{user.phone}}">
+                            <button type="button" class="btn btn-sm btn-primary edit-btn" style="margin-top: 5px; background-color: var(--primary-color);" onclick="enableEditAndShowSaveButton('phone')">تعديل</button>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="manager">المـــــــــديـــــــــــــــــــر:</label>
+                            <input readonly type="text" name="manager" id="manager" class="input_profile" value="{{manager.employee}}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="department">المنصب الوظيفي:</label>
+                            <input readonly type="text" name="department" id="department" class="input_profile" value="{{user.department}}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="startwork_date">تـــــاريخ التعـــــــيين:</label>
+                            <input readonly type="text" name="startwork_date" id="startwork_date" class="input_profile" value="{{user.startwork_date|date:"Y-m-d"}}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="birth_date">تـــــاريخ الميـــــــــــــلاد:</label>
+                            <input readonly type="text" name="birthdate" id="birthdate" class="input_profile" value="{{user.birthdate|date:"Y-m-d"}}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label for="address">العنــــــــــــــــــــــــــــــــوان:</label>
+                            <textarea readonly name="address" id="address" class="input_profile">{{ user.address }}</textarea>
+                            <button type="button" class="btn btn-sm btn-primary edit-btn" style="margin-bottom: 10px; background-color: var(--primary-color);" onclick="enableEditAndShowSaveButton('address')">تعديل</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn save-btn mt-2" id="saveChangesButton" style="display: none; margin:auto;">حفظ التغييرات</button>
+                </form>
+                <br>
+                <hr>
+                <h3>أمن الحساب</h3>
+                <div>
+                    <br>
+                    <a href="{% url 'password_change' %}" class="btn save-btn" style="width: 20%;">تغيير كلمة المرور</a>
+                    <br>
+                    {% if user.is_superuser %} 
+                        <button type="button" class="btn save-btn mt-2" id="showImageBtn" style="width: 20%;" >تغيير توقيع المدير</button>
+                        
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">تغيير توقيع المدير</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        {% if manager.signature %}
+                                        <img src="{{ manager.signature.url }}" id="currentSignature" alt="صورة توقيع المدير" style="max-width: 100%; margin: auto;">
+                                        {% else %}
+                                            <p>لا يوجد صورة</p>
+                                        {% endif %}
+                                        <form method="POST" enctype="multipart/form-data" id="signatureForm">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                <label for="newSignature">اختر صورة التوقيع الجديدة:</label>
+                                                <input type="file" class="form-control-file" id="newSignature" name="newSignature" accept="image/*" required>
+                                            </div>
+                                            <button type="submit" class="btn save-btn mt-2">حفظ</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                                    
+                        
+                    
+                    {% endif %}
+                    <br>
+                </div>
+                <hr>
+                <br>
+                <br>
+
+            </div>
+        </section>
+    </div>
+    
+    <br>
+</body>
+<script>
+    function enableEditAndShowSaveButton(fieldId) {
+        var field = document.getElementById(fieldId);
+        field.removeAttribute("readonly");
+        document.getElementById('saveChangesButton').style.display = 'block';
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var showImageBtn = document.getElementById("showImageBtn");
+        var attachmentImage = document.getElementById("attachmentImage");
+        var currentSignature = document.getElementById("currentSignature");
+
+        showImageBtn.addEventListener("click", function() {
+            var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+            myModal.show();
+        });
+    });
+</script>
+{% endblock content %}

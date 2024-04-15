@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="background-image: url('{% static 'image/background.jpg' %}'); object-fit: cover; background-attachment: fixed; background-size: cover;">
+        
+    <!-- <img class="bg-img" src="static/background.jpg" alt=".."> -->
+    <div style="margin: 0px 10px;">
+      <section class="sign">
+          <form class="register pt-4" style="direction: rtl;" method="POST">
+            {% csrf_token %}
+              <div class="reg-2 m-auto pt-4 pb-3 pl-2 pr-2 container">
+                <h2 class="p-4 pt-1 text-center">إنشاء حساب</h2>
+
+                <div class="inputdiv mb-4 d-inline-block" style="width: 44%; margin-left: 5%;">
+                  <label for="name">الاسم رباعي:</label>
+                  <br>
+                  <input type="text" class="input_sign" name="name"  id="name" placeholder="يرجى كتابة الاسم رباعي" value="{{ form.name.value|default_if_none:'' }}" required>
+                    {% if error_messages and 'username' in error_messages %}
+                        {% for error in error_messages.username %}
+                            <p style="color: transparent; margin: 0px;">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="inputdiv mb-4 d-inline-block" style="width: 49%">
+                  <label for="username">اسم المستخدم:</label>
+                  <br>
+                  <input type="text" class="input_sign" name="username"  id="username" placeholder="اسم المستخدم" value="{{ form.username.value|default_if_none:'' }}" required>
+                    {% if error_messages and 'username' in error_messages %}
+                        {% for error in error_messages.username %}
+                            <p style="color: #BF3131; margin: 0px;">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="inputdiv mb-4 d-inline-block">
+                 <label for="email">البريدالالكتروني:</label>
+                 <br>
+                  <input type="email" class="input_sign" name="email"  id="email" placeholder=" يرجى ادخال البريد الالكتروني الخاص بك" value="{{ form.email.value|default_if_none:'' }}" required>
+                    {% if error_messages and 'email' in error_messages %}
+                        {% for error in error_messages.email %}
+                            <p style="color: #BF3131; margin: 0px;">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="inputdiv mb-3 d-inline-block">
+                  <label for="password1">كلمةالمرور:</label>
+                  <br>
+                  <input type="password" name="password1" id="password1" class="input_sign" placeholder="كلمة المرور" value="{{ form.password1.value|default_if_none:'' }}" maxlength="18" minlength="6">
+                    {% if error_messages and 'password1' in error_messages %}
+                        {% for error in error_messages.password1 %}
+                            <p style="color: #BF3131; margin: 0px;">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="inputdiv mb-3 d-inline-block">
+                  <label for="password2">تاكيد كلمة المرور:</label>
+                  <br>
+                  <input type="password" name="password2" id="password2" class="input_sign" placeholder="تاكيد كلمة المرور" value="{{ form.password2.value|default_if_none:'' }}" maxlength="18" minlength="6">
+                    {% if error_messages and 'password2' in error_messages %}
+                        {% for error in error_messages.password2 %}
+                            <p style="color: #BF3131; margin: 0px;">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="inputdiv mb-4 d-inline-block" >
+                  <label for="employee_identity">الرقم القومي:</label>
+                  <br>
+                  <input class="input_sign" type="text" name="employee_identity"  id="employee_identity" placeholder="يرجى ادخال الرقم القومي الخاص بك" value="{{ form.employee_identity.value|default_if_none:'' }}" minlength="14" maxlength="14" required>
+                    {% if error_messages and 'employee_identity' in error_messages %}
+                      {% for error in error_messages.employee_identity %}
+                          <p style="color: #BF3131; margin: 0px;">{{ error }}</p>
+                      {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="inputdiv mb-4 d-inline-block" style="width: 44%; margin-left: 5%;" >
+                  <label for="startwork_date">تاريخ التعيين:</label>
+                  <br>
+                  <input type="date" required id="startwork_date" class="input_sign" placeholder="يرجى ادخال تاريخ التعيين" value="{{ form.startwork_date.value|default_if_none:'' }}" name="startwork_date">
+                    {% if error_messages and 'startwork_date' in error_messages %}
+                        {% for error in error_messages.startwork_date %}
+                            <p style="color: transparent; margin: 0px;">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="inputdiv mb-4 d-inline-block" style="width: 49%">
+                  <label for="phone">رقم الهاتف:</label>
+                  <br>
+                  <input type="text" required id="phone" class="input_sign" placeholder="يرجى ادخال رقم الهاتف" value="{{ form.phone.value|default_if_none:'' }}" min="11" max="11" name="phone">
+                    {% if error_messages and 'phone' in error_messages %}
+                      {% for error in error_messages.phone %}
+                          <p style="color: transparent; margin: 0px;">{{ error }}</p>
+                      {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="dt-list d-inline-block" style="width: 44%; margin-left: 5%;">
+                  <label  for="role">الوظيفة</label>
+                  <br>
+                  <div class="selectdiv">
+                    <select name="role" id="role"  class="select-dropdown">
+                        <option value=""></option>
+                        <option value="عضو هيئة تدريس">عضو هيئة تدريس</option>
+                        <option value="إداري">إداري</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="dt-list d-inline-block " style="width: 49%">
+                  <label for="department">القسم</label>
+                  <br>
+                  <div class="selectdiv">
+                    <select style="margin: 0px;" name="department" id="department" class="select-dropdown">
+                        
+                    </select>
+                    {% if error_messages and 'department' in error_messages %}
+                        {% for error in error_messages.department %}
+                            <p style="color: #BF3131; margin-bottom: 25px;">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                  </div>
+                </div>
+                
+              <br>
+              <input type="submit" value="إنشاء حساب" class="login d-block btn m-auto ">
+              <a href="{% url "login" %}" class="d-block btn m-auto">هل تمتلك حساب؟</a>
+          </div>
+              
+
+          </form>
+      </section>
+    </div>
+  </body>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('#role').change(function(){
+            var role = $(this).val();
+            var departmentOptions = '';
+
+            if(role === 'إداري') {
+                departmentOptions += '<option value="1">موارد بشرية</option>';
+                departmentOptions += '<option value="2">تكنولوجياالمعلومات</option>';
+                departmentOptions += '<option value="3">مبنى الورش</option>';
+                departmentOptions += '<option value="4">القائم بعمل امين الكلية</option>';
+                departmentOptions += '<option value="5">مدير المعامل</option>';
+                departmentOptions += '<option value="6">اخصائي شؤون إدارية</option>';
+                departmentOptions += '<option value="7">مدير إدارة الشؤون الإدارية</option>';
+                departmentOptions += '<option value="8">اخصائي شؤون مالية</option>';
+                departmentOptions += '<option value="9">مدير المخازن</option>';
+                departmentOptions += '<option value="10">علاقات عامة</option>';
+                departmentOptions += '<option value="11">إدارة الشؤون</option>';
+                departmentOptions += '<option value="12">اخصائي شؤون طلاب</option>';
+                departmentOptions += '<option value="13">إدارة تحول رقمي</option>';
+                departmentOptions += '<option value="14">إدارةالتدريب</option>';
+                departmentOptions += '<option value="15">مكتب السكرتارية</option>';
+                departmentOptions += '<option value="16">مكتب رئيس الجامعة</option>';
+                departmentOptions += '<option value="17">مكتب عميد الكلية</option>';
+
+            } else if(role === 'عضو هيئة تدريس') {
+                departmentOptions += '<option value="18">تكنولوجياالمعلومات</option>';
+                departmentOptions += '<option value="19">ميكاترونكس</option>';
+                departmentOptions += '<option value="20">اوتوترونكس</option>';
+                departmentOptions += '<option value="21">طاقة متجددة</option>';
+                departmentOptions += '<option value="22">بترول</option>';
+            }
+
+            $('#department').html(departmentOptions);
+        });
+    });
+</script>
+
+{% endblock content %}

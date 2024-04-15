@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="background-color: #f9fafb;">
+    
+    <div>
+        
+        <div style="margin: 0px 10px;">
+            <div class="container" style="padding: 0px; margin-top: 30px;">
+                <div class="d-flex align-items-center">
+                    <span class="btn save-btn" id="open" style="cursor: pointer;">إجازة جديدة</span>
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle save-btn me-2" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            حالة الإجازة
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="statusDropdown">
+                            <li><a class="dropdown-item" href="#">الكل</a></li>
+                            <li><a class="dropdown-item" href="#">معلق</a></li>
+                            <li><a class="dropdown-item" href="#">تم الموافقه</a></li>
+                            <li><a class="dropdown-item" href="#">تم الرفض</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <section class="profile container p-3 pt-4">
+                <div class="table-responsive">
+                    <table class="table" align="center">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">الاسم</th>
+                                <th scope="col">تاريخ الطلب</th>
+                                <th scope="col">المدة</th>
+                                <th scope="col">الحالة</th>
+                                <th scope="col">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            <tr>
+                                <th scope="row">1</th>
+                                <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">اسلام محمد ضاحي عبدالمعطي</a></td>
+                                <td>20/3/2023</td>
+                                <td>2 ايام</td>
+                                <td><div class="alert alert-success" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">تمت الموافقة</div></td>
+                                <td><a href="#" class="btn save-btn ms-2">عرض</a></td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">2</th>
+                                <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">اسلام محمد ضاحي عبدالمعطي</a></td>
+                                <td>20/3/2023</td>
+                                <td>2 ايام</td>
+                                <td><div class="alert alert-warning" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px;  min-width: 132px; ">معلق</div></td>
+                                <td><a href="#" class="btn save-btn ms-2">عرض</a></td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">3</th>
+                                <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">اسلام محمد ضاحي عبدالمعطي</a></td>
+                                <td>20/3/2023</td>
+                                <td>2 ايام</td>
+                                <td><div class="alert alert-secondary" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px;  min-width: 132px;">تم الرفض</div></td>
+                                <td><a href="#" class="btn save-btn ms-2">عرض</a></td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+        </div>
+
+        <div class="popup">
+            <div style="margin: 0px 10px;">
+                <br><br><br><br>
+                <section class="profile container p-3 pt-4" style="max-width: 700px; margin: 0px auto;">
+                    <div class="col-md-6" style="display: flex; align-items: center; justify-content: right; width: 100%;">
+                        <h2 style="display: inline; margin: 0px;">إجازة جديدة</h2>
+                    </div>
+                    <div class="Details pt-5 fs-7 ">
+                        <form method="POST" action="{% url "saveRequest" %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="mb-3">
+                                    <label for="vacation_type">نوع الإجازة:</label>
+                                    <select id="vacation_type" name="vacation_type" class="form-control" required>
+                                      <option selected>اختر...</option>
+                                      <option value="0">إجازة عادية ({{ user.vacation1 }}/{{ user.vacation1_balance }})</option>
+                                      <option value="1">إجازة عارضة (7/{{ user.vacation2_balance }})</option>
+                                      <option value="2">إجازة مرضية (10/{{ user.vacation3_balance }})</option>
+                                      {% if user.gender == 'Female' %}
+                                        <option value="3">إجازة وضع (2/{{ user.vacation4_balance }})</option>
+                                      {% endif %}
+                                      <option value="4">إذن</option>
+                                      <option value="5">مأمورية</option>
+                                    </select>
+                                </div>
+                            </div>
+        
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="start_date">من تاريخ:</label>
+                                    <input required type="date" name="start_date" id="start_date" class="input_profile" onchange="calculateVacationDays()">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="end_date">إلى تاريخ:</label>
+                                    <input required type="date" name="end_date" id="end_date" class="input_profile" onchange="calculateVacationDays()">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label>الأيام المطلوبة:</label>
+                                    <label id="vacation_days">0 يوم</label>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="mb-3">
+                                    <label for="alternate_employee">الموظف البديل:</label>
+                                    <select required id="alternate_employee" name="alternate_employee" class="form-control">
+                                        <option>اختر...</option>
+                                        {% for alt_user in allowed_user %}
+                                            <option value="{{ alt_user.id }}">{{ alt_user.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+        
+                            <div class="row" style="display: none;">
+                                <div class="mb-3" >
+                                    <label for="attachment">مرفق:</label>
+                                    <input type="file" name="attachment" id="attachment" class="input_profile" accept="image/*">
+                                    
+                                </div>
+                                <!-- <div id="imagePreview" style="display: none;">
+                                    <img class="mb-3" id="preview" src="#" alt="صورة المرفق" style="max-width: 100px;">
+                                </div> -->
+                            </div>
+        
+                            <div class="row">
+                                <div>
+                                    <label for="description">الوصف:</label>
+                                    <textarea name="description" id="description" placeholder="أضف وصفًا..." class="input_profile"></textarea>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <button type="submit" class="btn save-btn mt-2" id="saveChangesButton" style="margin:auto; width: 100%;">إرسال</button>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <a class="btn cancel-btn mt-2" id="close" style="margin:auto; width: 100%;">إلغاء</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <br>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function calculateVacationDaysAndValidate() {
+        var startDate = new Date(document.getElementById("start_date").value);
+        var endDate = new Date(document.getElementById("end_date").value);
+        
+        var timeDifference = endDate.getTime() - startDate.getTime();
+        var daysDifference = timeDifference / (1000 * 3600 * 24);
+        
+        document.getElementById("vacation_days").textContent = daysDifference + " يوم";
+
+        var selectedOption = $('#vacation_type').val();
+        var maxDays = 0;
+
+        if (selectedOption == '0') {
+            maxDays = "{{user.vacation1_balance}}";
+        } else if (selectedOption == '1') {
+            maxDays = "{{user.vacation2_balance}}";
+        } else if (selectedOption == '2') {
+            maxDays = "{{user.vacation3_balance}}";
+        } else if (selectedOption == '3') {
+            maxDays = "{{user.vacation4_balance}}";
+        }
+
+        if (daysDifference > maxDays) {
+            alert('لقد تجاوزت العدد المسموح به.');
+            document.getElementById("vacation_days").textContent = 0 + " يوم";
+        }
+    }
+
+    $(document).ready(function(){
+        $('#vacation_type').change(function(){
+            var selectedOption = $(this).val();
+            if(selectedOption == '2' || selectedOption == '3'){ 
+                $('#attachment').closest('.row').show(); 
+            } else {
+                $('#attachment').closest('.row').hide(); 
+                // $('#imagePreview').hide(); 
+                $('#attachment').attr('value', ''); 
+            }
+        });
+
+        $('#attachment').change(function(){
+            var fileInput = $(this)[0];
+            var file = fileInput.files[0];
+            var fileType = file.type;
+            if(fileType.startsWith('image/')){ 
+                var reader = new FileReader();
+                reader.onload = function(e){
+                    $('#preview').attr('src', e.target.result);
+                    $('#imagePreview').show(); 
+                }
+                reader.readAsDataURL(file);
+            } else {
+                alert('تأكد من اختيار صورة.');
+            }
+        });
+    });
+
+    document.querySelector("#open").addEventListener("click", function(){
+        document.querySelector(".popup").style.display = "flex";
+    })
+
+    document.querySelector("#close").addEventListener("click", function(){
+        document.querySelector(".popup").style.display = "none";
+    })
+
+    document.getElementById("start_date").addEventListener("change", calculateVacationDaysAndValidate);
+    document.getElementById("end_date").addEventListener("change", calculateVacationDaysAndValidate);
+</script>
+
+
+{% endblock content %}

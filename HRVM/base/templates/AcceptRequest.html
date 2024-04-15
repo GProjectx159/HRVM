@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="background-color: #f9fafb;">
+    
+    <div>
+        
+        <div style="margin: 0px 10px;">
+            <div class="container" style="padding: 0px; margin-top: 30px;">
+                <div class="d-flex align-items-center">
+                    <form method="GET" action="{% url "AcceptRequest" %}" class="d-flex">
+                        <input type="text" name="q" class="form-control ms-2" placeholder="ابحث...">
+                        <button type="submit" class="btn save-btn " style="width: 50px;">ابحث</button>
+                    </form>
+                </div>
+            </div>
+            
+            <section class="profile container p-3 pt-4">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">الاسم</th>
+                                <th scope="col">تاريخ الطلب</th>
+                                <th scope="col">من تاريخ</th>
+                                <th scope="col">الي تاريخ</th>
+                                <th scope="col">المدة</th>
+                                <th scope="col">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            {% for vacation in vacations %}
+                            <tr>
+                                <th scope="row">{{vacation.request_number}}</th>
+                                <td><a href="{% url "AcceptUsers" vacation.employee.username %}" style=" text-decoration: none; color: #2e2e2e;">{{vacation.employee.name}}</a></td>
+                                <td>{{vacation.request_date}}</td>
+                                <td>{{vacation.start_date}}</td>
+                                <td>{{vacation.end_date}}</td>
+                                <td>{{vacation.duration}} ايام</td>
+                                <td>
+                                    <a href="{% url "showRequest" vacation.request_number %}" class="open btn save-btn ms-2">عرض</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+        </div>
+    </div>
+    
+
+    
+    <br>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+</script>
+
+
+{% endblock content %}

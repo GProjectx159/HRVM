@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="background-image: url('{% static 'image/background.jpg' %}'); background-size: cover; background-attachment: fixed;">
+        
+  <!-- <img class="bg-img" src="static/background.jpg" alt=".."> -->
+  <div style="margin: 0px 10px;">
+    <section class="sign ">
+      <form class="register pt-5" style="direction: rtl;" method="POST">
+        {% csrf_token %}
+          <div class="reg m-auto mt-5 pt-5 pb-5 pl-2 pr-2 container">
+          <h2 class="p-5 pt-1 text-center">تسجيل الدخول</h2>
+          {% if error_message %}
+              <div class="alert alert-danger" role="alert">
+                {{ error_message }}
+              </div>
+          {% endif %}
+          <div class="inputdiv mb-3 d-inline-block">
+            <label for="n-p">البريد الالكتروني:</label>
+            <br>
+            <input type="email" name="email" id="email" class="input_sign" placeholder="email@example.com" value="{{ form.email.value|default_if_none:'' }}" required>
+          </div>
+          <div class="inputdiv mb-3 d-inline-block">
+            <label for="n-p">كلمةالمرور:</label>
+            <br>
+            <input type="password" name="password" id="password" class="input_sign" placeholder="••••••••" value="{{ form.password.value|default_if_none:'' }}" maxlength="18" minlength="6" required>
+          </div>
+          <br>
+          <div class="r-me pb-3 text-center" style="display: flex; align-content: space-between;">
+            <!-- <div class="d-inline p-2">
+              <input type="checkbox" id="remember">
+              <label for="remember">تذكرني</label>
+            </div> -->
+            <a  href="{% url "reset_password" %}" class="d-inline-block btn" style="margin: auto auto auto 0; ">نسيت كلمة المرور؟</a>
+          </div>
+          <input type="submit" value="تسجيل دخول" class="login d-block btn m-auto ">
+          <a href="{% url "signup" %}" class="d-block btn m-auto"> لا تملك حسابا حتى الآن؟</a>
+      </form>
+    </section>
+  </div>
+  
+</body>
+{% endblock content %}
