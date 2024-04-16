@@ -23,6 +23,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">الاسم</th>
+                                <th scope="col">نوع الاجازه</th>
                                 <th scope="col">تاريخ الطلب</th>
                                 <th scope="col">من تاريخ</th>
                                 <th scope="col">الي تاريخ</th>
@@ -35,9 +36,10 @@
                             <tr>
                                 <th scope="row">{{vacation.request_number}}</th>
                                 <td><a href="{% url "AcceptUsers" vacation.employee.username %}" style=" text-decoration: none; color: #2e2e2e;">{{vacation.employee.name}}</a></td>
-                                <td>{{vacation.request_date}}</td>
-                                <td>{{vacation.start_date}}</td>
-                                <td>{{vacation.end_date}}</td>
+                                <td>{{vacation.get_vacation_type_display}}</td>
+                                <td>{{vacation.request_date|date:'d/m/Y'}}</td>
+                                <td>{{vacation.start_date|date:'d/m/Y'}}</td>
+                                <td>{{vacation.end_date|date:'d/m/Y'}}</td>
                                 <td>{{vacation.duration}} ايام</td>
                                 <td>
                                     <a href="{% url "showRequest" vacation.request_number %}" class="open btn save-btn ms-2">عرض</a>

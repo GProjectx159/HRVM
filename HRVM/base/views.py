@@ -21,9 +21,10 @@ from django.http import HttpResponseRedirect
 
 from django.http import HttpResponse
 
-import pdfkit
 import os
-# import pdfcrowd
+
+import base64
+import pdfcrowd
 
 def home(request):
  if request.user.is_authenticated:
@@ -262,7 +263,20 @@ def updateUser(request, username):
 def requestView(request):
     user = User.objects.get(username=request.user.username)
     allowed_user = User.objects.filter(department=user.department).exclude(pk=user.pk)
+    # New ----------------------------------------
+    q = request.GET.get('q')
+
+    if request.user.department.department_id == 1:
+        vacations = Vacation.objects.all()
+    elif request.user.is_superuser:
+        vacations = Vacation.objects.filter(employee__department=request.user.department)
+    else:
+        vacations = Vacation.objects.filter(employee=request.user)
+
+    if q:
+        vacations = vacations.filter(status=q)
     
+    # ----------------------------------------
     end_date_requested = datetime.now().date() + timedelta(days=10)
 
     busy_alternates_ids = Vacation.objects.filter(
@@ -288,13 +302,10 @@ def requestView(request):
     context = {
         'user': user,
         'allowed_user': allowed_user,
+        'vacations' : vacations,
+        'department' : request.user.department
     }
     return render(request, "requestView.html", context)
-
-
-
-
-
 
 
 def saveRequest(request):
@@ -304,6 +315,7 @@ def saveRequest(request):
         end_date_str = request.POST.get('end_date')
         description = request.POST.get('description')
         attachment = request.FILES.get('attachment')  # Use request.FILES for file uploads
+        substitute_employee = request.POST.get('substitute_employee')  
 
         # Convert strings to datetime objects
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
@@ -327,6 +339,7 @@ def saveRequest(request):
             end_date=end_date,
             duration=duration.days,
             employee=request.user,
+            substitute_employee=substitute_employee,
             vacation_type=vacation_type,
             attachment=attachment,
             description=description
@@ -379,6 +392,14 @@ def showRequest(request, pk):
     }
     return render(request, "showRequest.html", context)
 
+def showMyRequest(request, pk):
+    vacation = Vacation.objects.get(request_number=pk)
+    
+    context = {
+        'vacation': vacation,
+    }
+    return render(request, "showMyRequest.html", context)
+
 def approve_vacation(request, request_number):
     try:
         vacation = Vacation.objects.get(request_number=request_number)
@@ -401,36 +422,29 @@ def reject_vacation(request, request_number):
         return render(request, '404.html')
 
 
-
-import base64
-import pdfcrowd
-from django.templatetags.static import static
-from django.conf import settings
-
-
-def pdf_report_create(request):
+def pdf_report_create(request, request_number):
     template_path = 'pdf_template.html'
 
     # افترض أن اسم الصورة هو 'NCTU-logo-1 (1) (1).png' في مجلد media/base/images
-    image_path = os.path.join(settings.MEDIA_ROOT, 'NCTU-logo-1 (2).png')
-
-    with open(image_path, 'rb') as image_file:
+    logo_path = os.path.join(settings.MEDIA_ROOT, 'NCTU-logo-1 (2).png')
+    with open(logo_path, 'rb') as image_file:
         image_data = image_file.read()
-
     # Encode the image data to base64
-    image_base64 = base64.b64encode(image_data).decode('utf-8')
+    logo = base64.b64encode(image_data).decode('utf-8')
+
+    vacation = Vacation.objects.get(request_number=request_number)
+
+    manager_signature_path = os.path.join(settings.MEDIA_ROOT, f'{vacation.manager_signature}') 
+    with open(manager_signature_path, 'rb') as image_file:
+        image_data = image_file.read()
+    # Encode the image data to base64
+    manager_signature = base64.b64encode(image_data).decode('utf-8')
 
     data = {
-        "company": "Dennnis Ivanov Company",
-        "address": "123 Street name",
-        "city": "Vancouver",
-        "state": "WA",
-        "zipcode": "98663",
-        "phone": "555-555-2345",
-        "email": "youremail@dennisivy.com",
-        "website": "dennisivy.com",
-        "image_base64": image_base64,  # Pass the base64 string to the template
-        "name": "طلب الاجازه"
+        "vacation": vacation,
+        "department": vacation.employee.department.name,
+        "logo": logo,  # Pass the base64 string to the template
+        "manager_signature": manager_signature,  # Pass the base64 string to the template
     }
 
     context = {'data': data}
@@ -439,7 +453,7 @@ def pdf_report_create(request):
 
     try:
         # Replace 'Gprojectx159' and '9169456ae59c510b81bc2bd5f3aa19e6' with your PDFCrowd username and API key
-        client = pdfcrowd.HtmlToPdfClient('Gprojectx159', '9169456ae59c510b81bc2bd5f3aa19e6')
+        client = pdfcrowd.HtmlToPdfClient('eslamx144', 'fa2c8229a1c90cc353bafd3cb53deddb')
         
         # Convert HTML string to PDF and save it to a file named "Vacation_report.pdf"
         client.convertStringToFile(html_string, 'Vacation_report.pdf')

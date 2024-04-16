@@ -26,11 +26,12 @@ urlpatterns = [
     path('saveRequest/', views.saveRequest, name='saveRequest'),
     path('AcceptRequest/', views.AcceptRequest, name='AcceptRequest'),
     path('showRequest/<str:pk>/', views.showRequest, name='showRequest'),
+    path('showMyRequest/<str:pk>/', views.showMyRequest, name='showMyRequest'),
 
     path('approve/<int:request_number>/', views.approve_vacation, name='approve_vacation'),
     path('reject/<int:request_number>/', views.reject_vacation, name='reject_vacation'),
 
-    path('pdf_view', views.pdf_report_create, name="pdf_view"),
+    path('pdf_view/<int:request_number>/', views.pdf_report_create, name="pdf_view"),
 
 
 ]

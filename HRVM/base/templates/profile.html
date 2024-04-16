@@ -54,11 +54,11 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="startwork_date">تـــــاريخ التعـــــــيين:</label>
-                            <input readonly type="text" name="startwork_date" id="startwork_date" class="input_profile" value="{{user.startwork_date|date:"Y-m-d"}}">
+                            <input readonly type="text" name="startwork_date" id="startwork_date" class="input_profile" value="{{user.startwork_date|date:'d/m/Y'}}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="birth_date">تـــــاريخ الميـــــــــــــلاد:</label>
-                            <input readonly type="text" name="birthdate" id="birthdate" class="input_profile" value="{{user.birthdate|date:"Y-m-d"}}">
+                            <input readonly type="text" name="birthdate" id="birthdate" class="input_profile" value="{{user.birthdate|date:'d/m/Y'}}">
                         </div>
                     </div>
                     <div class="row">

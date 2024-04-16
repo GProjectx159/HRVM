@@ -37,9 +37,9 @@ class User(AbstractUser):
 class Vacation(models.Model):
     vacation_id = models.BigAutoField(primary_key=True)
     STATUS_CHOICES = (
-        ('0', 'Pending'),
-        ('1', 'Refused'),
-        ('2', 'Accepted'),
+        ('0', 'مُعلق'),
+        ('1', 'تم الرفض'),
+        ('2', 'تم الوافقة'),
     )
     VACATION_TYPE_CHOICES = (
         ('0', 'اجازه اعتياديه'),
@@ -61,6 +61,7 @@ class Vacation(models.Model):
     attachment = models.ImageField(null=True, blank=True, upload_to="images/")
     description = models.CharField(max_length=1000, default='', blank=True, null=True)
 
+    substitute_employee = models.CharField(max_length=100, default='', blank=True, null=True)
     manager_signature = models.ImageField(null=True, blank=True)
 
     def save(self, *args, **kwargs):

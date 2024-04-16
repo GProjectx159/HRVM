@@ -24,7 +24,7 @@
                             الخدمات
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="direction: rtl;">
-                            <li><a class="dropdown-item" href="{% url "requestView" %}">اجازاتي</a></li>
+                            <li><a class="dropdown-item" href="{% url "requestView" %}">عرض الاجازات</a></li>
                             {% if request.user.is_superuser %}
                                 <li><a class="dropdown-item" href="{% url "AcceptRequest" %}">اعتماد الاجازات</a></li>
                                 <li><hr class="dropdown-divider"></li>

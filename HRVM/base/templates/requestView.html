@@ -5,7 +5,6 @@
 <body style="background-color: #f9fafb;">
     
     <div>
-        
         <div style="margin: 0px 10px;">
             <div class="container" style="padding: 0px; margin-top: 30px;">
                 <div class="d-flex align-items-center">
@@ -15,10 +14,10 @@
                             حالة الإجازة
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="statusDropdown">
-                            <li><a class="dropdown-item" href="#">الكل</a></li>
-                            <li><a class="dropdown-item" href="#">معلق</a></li>
-                            <li><a class="dropdown-item" href="#">تم الموافقه</a></li>
-                            <li><a class="dropdown-item" href="#">تم الرفض</a></li>
+                            <li><a class="dropdown-item" href="{% url 'requestView' %}">الكل</a></li>
+                            <li><a class="dropdown-item" href="{% url 'requestView' %}?q=0">معلق</a></li>
+                            <li><a class="dropdown-item" href="{% url 'requestView' %}?q=2">تم الموافقه</a></li>
+                            <li><a class="dropdown-item" href="{% url 'requestView' %}?q=1">تم الرفض</a></li>
                         </ul>
                     </div>
                 </div>
@@ -30,6 +29,10 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">الاسم</th>
+                                <th scope="col">نوع الاجازه</th>
+                                {% if department.department_id == 1 %}
+                                <th scope="col">القسم/الاداره</th>
+                                {% endif %}
                                 <th scope="col">تاريخ الطلب</th>
                                 <th scope="col">المدة</th>
                                 <th scope="col">الحالة</th>
@@ -37,33 +40,27 @@
                             </tr>
                         </thead>
                         <tbody >
+                            {% for vacation in vacations %}
                             <tr>
-                                <th scope="row">1</th>
-                                <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">اسلام محمد ضاحي عبدالمعطي</a></td>
-                                <td>20/3/2023</td>
-                                <td>2 ايام</td>
-                                <td><div class="alert alert-success" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">تمت الموافقة</div></td>
-                                <td><a href="#" class="btn save-btn ms-2">عرض</a></td>
+                                <th scope="row">{{vacation.request_number}}</th>
+                                <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">{{ vacation.employee }}</a></td>
+                                <td>{{vacation.get_vacation_type_display}}</td>
+                                {% if department.department_id == 1 %}
+                                <td>{{vacation.employee.department}}</td>
+                                {% endif %}
+                                <td>{{vacation.start_date|date:'d/m/Y'}}</td>
+                                <td>{{vacation.duration}}</td>
+                                {% if vacation.status == '0' %}
+                                <td><div class="alert alert-warning" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                {% elif vacation.status == '1' %}
+                                <td><div class="alert alert-danger" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                {% else %}
+                                <td><div class="alert alert-success" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                {% endif %}
+                                
+                                <td><a href="{% url 'showMyRequest' vacation.request_number %}" class="btn save-btn ms-2">عرض</a></td>
                             </tr>
-
-                            <tr>
-                                <th scope="row">2</th>
-                                <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">اسلام محمد ضاحي عبدالمعطي</a></td>
-                                <td>20/3/2023</td>
-                                <td>2 ايام</td>
-                                <td><div class="alert alert-warning" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px;  min-width: 132px; ">معلق</div></td>
-                                <td><a href="#" class="btn save-btn ms-2">عرض</a></td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">3</th>
-                                <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">اسلام محمد ضاحي عبدالمعطي</a></td>
-                                <td>20/3/2023</td>
-                                <td>2 ايام</td>
-                                <td><div class="alert alert-secondary" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px;  min-width: 132px;">تم الرفض</div></td>
-                                <td><a href="#" class="btn save-btn ms-2">عرض</a></td>
-                            </tr>
-                            
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -118,8 +115,8 @@
                             
                             <div class="row">
                                 <div class="mb-3">
-                                    <label for="alternate_employee">الموظف البديل:</label>
-                                    <select required id="alternate_employee" name="alternate_employee" class="form-control">
+                                    <label for="substitute_employee">الموظف البديل:</label>
+                                    <select required id="substitute_employee" name="substitute_employee" class="form-control">
                                         <option>اختر...</option>
                                         {% for alt_user in allowed_user %}
                                             <option value="{{ alt_user.id }}">{{ alt_user.name }}</option>

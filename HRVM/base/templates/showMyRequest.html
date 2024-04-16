@@ -8,7 +8,7 @@
         <div class="container" style="padding: 0px; margin-top: 30px;">
             <div class="d-block text-right">
                 
-                <a class="btn save-btn" href="{% url "AcceptRequest" %}">عوده</a>
+                <a class="btn save-btn" href="{% url "requestView" %}">عوده</a>
                 <a class="btn save-btn" href="{% url "pdf_view" vacation.request_number %}" target="_blank">طباعة الاجازه</a>
             </div>
         </div>
@@ -85,7 +85,7 @@
                         </div>
                     </div>
 
-                    
+                   
 
                     
                     
@@ -96,9 +96,6 @@
                         </div>
                     </div>
                     <hr>
-                    <a href="{% url 'approve_vacation' vacation.request_number %}" class="btn save-btn mt-2" style="margin:auto;">موافقه</a>
-                    <a href="{% url 'reject_vacation' vacation.request_number %}" class="btn cancel-btn mt-2" style="margin:auto;">رفض</a>
-
                 </form>
                 <br>
 
