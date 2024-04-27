@@ -16,8 +16,34 @@
                 <h2 style="display: inline; margin: 0px;">{{user.username}}</h2>
             </div>
             <div class="Details pt-5 fs-7 ">
-                <form method="POST" >
+                <form method="POST">
                     {% csrf_token %}
+                    <h3>• رصيد الاجازات</h3>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name">اعتيادي: </label>
+                            <input readonly type="text" name="name" id="name" class="input_profile" value="{{user.vacation1_balance}}">
+                            
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email">عارضه:</label>
+                            <input readonly type="email" name="email" id="email" class="input_profile" value="{{user.vacation2_balance}}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="email">مرضي:</label>
+                            <input readonly type="email" name="email" id="email" class="input_profile" value="{{user.vacation3_balance}}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email">وضع:</label>
+                            <input readonly type="email" name="email" id="email" class="input_profile" value="{{user.vacation4_balance}}">
+                        </div>
+                    </div>
+                    <hr>
+                    <h3>• البيانات الشخصيه</h3>
+                    <br>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="name">الاســم ربــــــــــــاعي: </label>
@@ -72,7 +98,7 @@
                 </form>
                 <br>
                 <hr>
-                <h3>أمن الحساب</h3>
+                <h3>• أمن الحساب</h3>
                 <div>
                     <br>
                     <a href="{% url 'password_change' %}" class="btn save-btn" style="width: 20%;">تغيير كلمة المرور</a>
@@ -138,5 +164,6 @@
             myModal.show();
         });
     });
+
 </script>
 {% endblock content %}

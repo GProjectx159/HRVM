@@ -29,10 +29,10 @@ import pdfcrowd
 def home(request):
  if request.user.is_authenticated:
         return redirect('home_after')
- return render(request, "home.html", {})
+ return render(request, "main_page/home.html", {})
 
 def error_404_view(request, exception):
-    return render(request, '404.html')
+    return render(request, 'error_page/404.html')
 
 
 class CustomPasswordResetView(PasswordResetView):
@@ -68,7 +68,7 @@ class CustomPasswordResetView(PasswordResetView):
     
 @login_required(login_url='login')
 def home_after(request):
- return render(request, "home_after.html")
+ return render(request, "main_page/home_after.html")
 
 
 def loginUser(request):
@@ -93,7 +93,10 @@ def loginUser(request):
             if user is not None:
                 
                 auth_login(request, user)
-                return redirect('home_after')
+                if user.is_superuser:
+                    return redirect('AcceptRequest')
+                else:
+                    return redirect('user-profile', username = request.user.username)
             else:
                 error_message = 'اسم المستخدم او كلمة المرور خطأ'
                 submitted_data = request.POST.copy() 
@@ -214,7 +217,7 @@ def userprofile(request, username):
         'user': user,
         'manager': manager,
     }
-    return render(request, "profile.html", context)
+    return render(request, "user/profile.html", context)
 
 @login_required(login_url='login')
 def usersRequests(request):
@@ -223,15 +226,15 @@ def usersRequests(request):
         'inactive_users' : inactive_users,
     }
     if not request.user.is_superuser:
-        return render(request, "home_after.html", context)
-    return render(request, "usersRequests.html", context)
+        return render(request, "main_page/home_after.html", context)
+    return render(request, "controll/usersRequests.html", context)
 
 def acceptUsers(request, username):
     user = User.objects.get(username=username)
     context = {
         'user' : user
     }
-    return render(request, "acceptUsers.html", context)
+    return render(request, "controll/acceptUsers.html", context)
 
 def deleteUser(request, username):
     user = User.objects.get(username=username)
@@ -258,12 +261,15 @@ def updateUser(request, username):
     
     return usersRequests(request)
 
+def manageDepartment(request):
+    context = {
+        
+    }
+    return render(request, "controll/manageDepartment.html", context)
+
 
 
 def requestView(request):
-    user = User.objects.get(username=request.user.username)
-    allowed_user = User.objects.filter(department=user.department).exclude(pk=user.pk)
-    # New ----------------------------------------
     q = request.GET.get('q')
 
     if request.user.department.department_id == 1:
@@ -276,36 +282,11 @@ def requestView(request):
     if q:
         vacations = vacations.filter(status=q)
     
-    # ----------------------------------------
-    end_date_requested = datetime.now().date() + timedelta(days=10)
-
-    busy_alternates_ids = Vacation.objects.filter(
-        Q(employee__in=allowed_user),
-        Q(start_date__lte=end_date_requested, end_date__gte=datetime.now().date()) |
-        Q(start_date__gte=datetime.now().date(), end_date__lte=end_date_requested) |
-        Q(start_date__lte=datetime.now().date(), end_date__gte=datetime.now().date()) |
-        Q(start_date__lte=end_date_requested, end_date__gte=end_date_requested)
-    ).values_list('employee_id', flat=True)
-
-    allowed_user = allowed_user.exclude(id__in=busy_alternates_ids)
-    
-    difference = datetime.now().date() - user.startwork_date.date()
-    
-    if difference.days >= 365:  
-        if user.vacation1 == 15:
-            user.vacation1 = 21
-            user.vacation1_balance += 6  
-            # if user.age > 50:
-            #     user.vacation1 = 30
-            user.save()
-
     context = {
-        'user': user,
-        'allowed_user': allowed_user,
         'vacations' : vacations,
         'department' : request.user.department
     }
-    return render(request, "requestView.html", context)
+    return render(request, "vacation_request/requestView.html", context)
 
 
 def saveRequest(request):
@@ -348,6 +329,7 @@ def saveRequest(request):
 
         user = User.objects.get(username=request.user.username)
 
+
         if vacation_type == '0':
             user.vacation1_balance = F('vacation1_balance') - duration.days
         elif vacation_type == '1':
@@ -381,7 +363,40 @@ def AcceptRequest(request):
     context = {
         'vacations': vacations,
     }
-    return render(request, "AcceptRequest.html", context)
+    return render(request, "vacation_request/AcceptRequest.html", context)
+
+    
+def vacationRequest(request):
+    user = User.objects.get(username=request.user.username)
+    allowed_user = User.objects.filter(department=user.department).exclude(pk=user.pk)
+    end_date_requested = datetime.now().date() + timedelta(days=10)
+
+    busy_alternates_ids = Vacation.objects.filter(
+        Q(employee__in=allowed_user),
+        Q(start_date__lte=end_date_requested, end_date__gte=datetime.now().date()) |
+        Q(start_date__gte=datetime.now().date(), end_date__lte=end_date_requested) |
+        Q(start_date__lte=datetime.now().date(), end_date__gte=datetime.now().date()) |
+        Q(start_date__lte=end_date_requested, end_date__gte=end_date_requested)
+    ).values_list('employee_id', flat=True)
+
+    allowed_user = allowed_user.exclude(id__in=busy_alternates_ids)
+    
+    difference = datetime.now().date() - user.startwork_date.date()
+    
+    if difference.days >= 365:  
+        if user.vacation1 == 15:
+            user.vacation1 = 21
+            user.vacation1_balance += 6  
+            # if user.age > 50:
+            #     user.vacation1 = 30
+            user.save()
+
+    context = {
+        'user': user,
+        'allowed_user': allowed_user,
+        'department' : request.user.department
+    }
+    return render(request, "vacation_request/vacationRequest.html", context)
 
 
 def showRequest(request, pk):
@@ -390,7 +405,7 @@ def showRequest(request, pk):
     context = {
         'vacation': vacation,
     }
-    return render(request, "showRequest.html", context)
+    return render(request, "vacation_request/showRequest.html", context)
 
 def showMyRequest(request, pk):
     vacation = Vacation.objects.get(request_number=pk)
@@ -398,7 +413,7 @@ def showMyRequest(request, pk):
     context = {
         'vacation': vacation,
     }
-    return render(request, "showMyRequest.html", context)
+    return render(request, "vacation_request/showMyRequest.html", context)
 
 def approve_vacation(request, request_number):
     try:
@@ -410,7 +425,7 @@ def approve_vacation(request, request_number):
 
         return redirect('AcceptRequest')
     except Vacation.DoesNotExist:
-        return render(request, '404.html')
+        return render(request, 'error_page/404.html')
 
 def reject_vacation(request, request_number):
     try:
@@ -419,11 +434,11 @@ def reject_vacation(request, request_number):
         vacation.save()
         return redirect('AcceptRequest')
     except Vacation.DoesNotExist:
-        return render(request, '404.html')
+        return render(request, 'error_page/404.html')
 
 
 def pdf_report_create(request, request_number):
-    template_path = 'pdf_template.html'
+    template_path = 'other_temp/pdf_template.html'
 
     # افترض أن اسم الصورة هو 'NCTU-logo-1 (1) (1).png' في مجلد media/base/images
     logo_path = os.path.join(settings.MEDIA_ROOT, 'NCTU-logo-1 (2).png')
@@ -471,3 +486,9 @@ def pdf_report_create(request, request_number):
         return HttpResponse("PDF conversion failed: {}".format(why))
 
     
+def edit(request):
+    users = User.objects.all()
+    for user in users:
+            user.vacation1_balance = 10
+            user.save()
+    return render(request, 'main_page/home_after.html')

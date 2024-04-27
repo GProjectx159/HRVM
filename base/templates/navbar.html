@@ -27,14 +27,23 @@
                             <li><a class="dropdown-item" href="{% url "requestView" %}">عرض الاجازات</a></li>
                             {% if request.user.is_superuser %}
                                 <li><a class="dropdown-item" href="{% url "AcceptRequest" %}">اعتماد الاجازات</a></li>
+                            {% endif %}
+                            {% if request.user.department.department_id == 1 or request.user.is_superuser %}
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">تقارير</a></li>
+                                <li><a class="dropdown-item" href="{% url 'edit' %}">تقارير</a></li>
                             {% endif %}
                         </ul>
                     </li>
-                    {% if request.user.department.department_id == 1 %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url "usersRequests" %}" style="font-size: 18px; font-weight: 500;">طلبات الانضمام</a>
+                    {% if request.user.department.department_id == 1 and request.user.is_superuser %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px; font-weight: 500;">
+                                <span class="btn save-btn" style="width: 25px; height: 25px; padding: 0px;">0</span>
+                                التحكم
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="direction: rtl;">
+                                <li><a class="dropdown-item" href="{% url "manageDepartment" %}">ادارة الاقسام / الادارات</a></li>
+                                <li><a class="dropdown-item" href="{% url "usersRequests" %}"><span class="btn save-btn ms-2" style="width: 25px; height: 25px; padding: 0px;">0</span>طلبات الانضمام</a></li>
+                            </ul>
                         </li>
                     {% endif %}
                 {% endif %}

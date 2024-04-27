@@ -96,9 +96,16 @@
                         </div>
                     </div>
                     <hr>
-                    <a href="{% url 'approve_vacation' vacation.request_number %}" class="btn save-btn mt-2" style="margin:auto;">موافقه</a>
-                    <a href="{% url 'reject_vacation' vacation.request_number %}" class="btn cancel-btn mt-2" style="margin:auto;">رفض</a>
 
+                    <div class="row" style="justify-content: center;">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'approve_vacation' vacation.request_number %}" class="btn save-btn mt-2" style="margin:auto; width: 100%;">موافقه</a>
+
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'reject_vacation' vacation.request_number %}" class="btn cancel-btn mt-2"  style="margin:auto; width: 100%;">رفض</a>
+                        </div>
+                    </div>
                 </form>
                 <br>
 

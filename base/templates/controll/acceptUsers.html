@@ -67,9 +67,13 @@
                     </div>
                     
                     {% if not user.is_active %}
-                    <div style="text-align: center;">
-                        <button type="submit" class="btn save-btn mt-2">قبول</button>
-                        <a href="{% url "deleteUser" user.username %}" class="btn cancel-btn mt-2" >رفض</a>
+                    <div class="row" style="justify-content: center;">
+                        <div class="col-md-3 mb-3">
+                            <button type="submit" class="btn save-btn mt-2" style="margin:auto; width: 100%;">قبول</button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a class="btn cancel-btn mt-2" style="margin:auto; width: 100%;" href="{% url "deleteUser" user.username %}">رفض</a>
+                        </div>
                     </div>
                     {% endif %}
                 </form>

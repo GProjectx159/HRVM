@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="background-color: #f9fafb;">
+    
+    <div>
+        <div style="margin: 0px 10px;">
+            <div class="container" style="padding: 0px; margin-top: 30px;">
+                <div class="d-flex align-items-center">
+                    <button type="button" class="btn save-btn" id="showAddDepartmentBtn" style="width: 10%;">اضافة قسم / اداره</button>
+                        
+                    <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel2">اضافة قسم / اداره</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="POST" enctype="multipart/form-data" id="editDepartmentForm">
+                                        <br>
+                                        <div class="mb-3">
+                                            <label for="edit_name">اسم القسم / الاداره:</label>
+                                            <input required type="text" name="edit_name" id="edit_name" class="input_profile" value="">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="manager">المدير:</label>
+                                            <select required id="manager" name="manager" class="form-control">
+                                                <option value="" selected disabled>اختر...</option>
+                                            </select>
+                                        </div>
+                                        <hr>
+                                        <button type="submit" class="btn save-btn mt-2">اضافة</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <section class="profile container p-3 pt-4">
+                <div class="table-responsive">
+                    <table class="table" align="center">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">اسم القسم / ادارة</th>
+                                <th scope="col">المدير المسؤل</th>
+                                <th scope="col">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>تكنولوجيا المعلومات</td>
+                                <td>اسلام محمد عطية محمد</td>
+                                <td>
+                                    <button type="button" class="btn save-btn ms-2" id="showEditDepartmentBtn" style="width: 20%;">تعديل</button>
+                        
+                                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">تعديل القسم / الاداره</h5>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form method="POST" enctype="multipart/form-data" id="editDepartmentForm">
+                                                        <br>
+                                                        <div class="mb-3">
+                                                            <label for="name">اسم القسم / الاداره:</label>
+                                                            <input required type="text" name="name" id="name" class="input_profile" value="">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="manager">المدير:</label>
+                                                            <select required id="manager" name="manager" class="form-control">
+                                                                <option value="" selected disabled>اختر...</option>
+                                                            </select>
+                                                        </div>
+                                                        <hr>
+                                                        <button type="submit" class="btn save-btn mt-2">حفظ</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="btn save-btn ms-2">ازاله</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+    <br>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var showAddDepartmentBtn = document.getElementById("showAddDepartmentBtn");
+        var showEditDepartmentBtn = document.getElementById("showEditDepartmentBtn");
+
+        showAddDepartmentBtn.addEventListener("click", function() {
+            var myModal = new bootstrap.Modal(document.getElementById('exampleModal2'));
+            myModal.show();
+        });
+
+        showEditDepartmentBtn.addEventListener("click", function() {
+            var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+            myModal.show();
+        });
+    });
+</script>
+{% endblock content %}

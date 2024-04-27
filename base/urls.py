@@ -16,6 +16,9 @@ urlpatterns = [
     path('deleteUser/<str:username>/', views.deleteUser, name='deleteUser'),
     path('updateUser/<str:username>/', views.updateUser, name='updateUser'),
 
+    path('manageDepartment/', views.manageDepartment, name='manageDepartment'),
+
+
     path('reset/password/', views.CustomPasswordResetView.as_view(), name='reset_password'),
     path('reset/password/sent/', auth_views.PasswordResetDoneView.as_view(template_name='registration/reset_password_sent.html'), name="password_reset_done"),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/reset.html'), name='password_reset_confirm'),
@@ -23,6 +26,7 @@ urlpatterns = [
     path('password_change/', auth_views.PasswordChangeView.as_view(template_name='registration/password_change_form.html', success_url = reverse_lazy("home") ),  name='password_change'),
 
     path('requestView/', views.requestView, name='requestView'),
+    path('vacationRequest/', views.vacationRequest, name='vacationRequest'),
     path('saveRequest/', views.saveRequest, name='saveRequest'),
     path('AcceptRequest/', views.AcceptRequest, name='AcceptRequest'),
     path('showRequest/<str:pk>/', views.showRequest, name='showRequest'),
@@ -33,6 +37,7 @@ urlpatterns = [
 
     path('pdf_view/<int:request_number>/', views.pdf_report_create, name="pdf_view"),
 
+    path('edit/', views.edit, name="edit"),
 
 ]
 
