@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="background-color: #f9fafb;">
+    
+    <div>
+        
+        <div style="margin: 0px 10px;">
+            <div class="container" style="padding: 0px; margin-top: 30px;">
+                <div class="d-flex align-items-center">
+                    <form method="GET" action="{% url "AcceptRequest" %}" class="d-flex">
+                        <input type="text" name="q" class="form-control ms-2" placeholder="ابحث...">
+                        <button type="submit" class="btn save-btn " style="width: 50px;">ابحث</button>
+                    </form>
+                </div>
+            </div>
+            
+            <section class="profile container p-3 pt-4">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">الاسم</th>
+                                <th scope="col">القسم / الاداره</th>
+                                <th scope="col">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>اسلام محمد</td>
+                                <td>تكنولوجيا المعلومات</td>
+                                <td>
+                                    <a href="{% url 'Ruser' request.user.username %}" class="open btn save-btn ms-2">عرض</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+
+    
+    <br>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+</script>
+
+
+{% endblock content %}

@@ -486,9 +486,14 @@ def pdf_report_create(request, request_number):
         return HttpResponse("PDF conversion failed: {}".format(why))
 
     
-def edit(request):
-    users = User.objects.all()
-    for user in users:
-            user.vacation1_balance = 10
-            user.save()
-    return render(request, 'main_page/home_after.html')
+def Rdepartment(request):
+
+    return render(request, 'report/Rdepartment.html')
+
+def Showuser(request):
+
+    return render(request, 'report/Showuser.html')
+
+def Ruser(request, pk):
+
+    return render(request, 'report/Ruser.html')

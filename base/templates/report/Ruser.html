@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="background-color: #f9fafb;">
+
+    <div>
+        <div style="margin: 0px 10px;">
+            <div class="container" style="padding: 0px; margin-top: 30px;">
+                <div class="d-flex align-items-center justify-content-center">
+                    <form method="POST" style="width: 100%;">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-2 mb-3">
+                                <label for="start_date">من تاريخ:</label>
+                                <input required type="date" name="start_date" id="start_date" class="form-control" onchange="calculateVacationDays()">
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="end_date">إلى تاريخ:</label>
+                                <input required type="date" name="end_date" id="end_date" class="form-control" onchange="calculateVacationDays()">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="end_date">قسم / ادارة:</label>
+                                <select required id="substitute_employee" name="substitute_employee" class="form-control">
+                                    <option value="" selected disabled>اختر...</option>
+                                    {% for alt_user in allowed_user %}
+                                        <option value="{{ alt_user.id }}">{{ alt_user.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-1 mb-3 mt-3">
+                                <button type="submit" class="btn save-btn mt-2" id="submitButton" style="margin:auto; width: 100%;">بحث</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            <section class="profile container p-3 pt-4">
+                <div class="row justify-content-start">
+                    <div class="col-md-1 mb-3">
+                        <button type="submit" class="btn save-btn mt-2" id="printButton" style="margin:auto; width: 100%;"><i class="fa-solid fa-print" style="width: 20px; height: 20px;"></i></button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">يوم</th>
+                                <th scope="col">مجموع الاجازات</th>
+                                <th scope="col">عدد الحاضرين</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>20/1/2023</td>
+                                <td>20</td>
+                                <td>10</td>
+                            </tr>
+                            <!-- Other rows here -->
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </section>
+        </div>
+    </div>
+    <br>
+</body>
+
+{% endblock content %}
