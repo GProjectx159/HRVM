@@ -33,7 +33,6 @@
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="direction: rtl;">
                             <li><a class="dropdown-item" href="{% url "requestView" %}">عرض الاجازات</a></li>
                             {% if request.user.is_superuser %}
-<<<<<<< HEAD
                                 
                                     <li><a class="dropdown-item" href="{% url "AcceptRequest" %}"><span class="btn save-btn ms-2" style="width: 25px; height: 25px; padding: 0px;">
                                             {{no_pending_vacations}}
@@ -43,13 +42,6 @@
                         </ul>
                     </li>
                     {% if request.user.department.department_id == 1 %}
-=======
-                                <li><a class="dropdown-item" href="{% url "AcceptRequest" %}">اعتماد الاجازات</a></li>
-                            {% endif %}
-                        </ul>
-                    </li>
-                    {% if request.user.department.department_id == 1 or request.user.is_superuser %}
->>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px; font-weight: 500;">
                                 تقارير

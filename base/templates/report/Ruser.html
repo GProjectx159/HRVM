@@ -13,38 +13,18 @@
                         <div class="row">
                             <div class="col-md-2 mb-3">
                                 <label for="start_date">من تاريخ:</label>
-<<<<<<< HEAD
                                 <input required type="date" name="start_date" id="start_date" class="form-control">
                             </div>
                             <div class="col-md-2 mb-3">
                                 <label for="end_date">إلى تاريخ:</label>
                                 <input required type="date" name="end_date" id="end_date" class="form-control">
-=======
-                                <input required type="date" name="start_date" id="start_date" class="form-control" onchange="calculateVacationDays()">
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label for="end_date">إلى تاريخ:</label>
-                                <input required type="date" name="end_date" id="end_date" class="form-control" onchange="calculateVacationDays()">
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="end_date">قسم / ادارة:</label>
-                                <select required id="substitute_employee" name="substitute_employee" class="form-control">
-                                    <option value="" selected disabled>اختر...</option>
-                                    {% for alt_user in allowed_user %}
-                                        <option value="{{ alt_user.id }}">{{ alt_user.name }}</option>
-                                    {% endfor %}
-                                </select>
->>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                             </div>
                             <div class="col-md-1 mb-3 mt-3">
                                 <button type="submit" class="btn save-btn mt-2" id="submitButton" style="margin:auto; width: 100%;">بحث</button>
                             </div>
-<<<<<<< HEAD
                             <div class="col-md-1 mb-3 mt-3">
                                 <a href="{% url 'Ruser' pk %}" class="btn save-btn mt-2" style="margin:auto; width: 100%;"> الكل</a>
                             </div>
-=======
->>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                         </div>
                     </form>
 
@@ -57,7 +37,6 @@
                     </div>
                 </div>
                 <div class="table-responsive">
-<<<<<<< HEAD
                     <table class="table table-striped" align="center">
                         <thead>
                             <tr>
@@ -131,33 +110,10 @@
                                 <td>{{ item.total_days }}</td>
                             </tr>
                             {% endfor %}
-=======
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">يوم</th>
-                                <th scope="col">مجموع الاجازات</th>
-                                <th scope="col">عدد الحاضرين</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>20/1/2023</td>
-                                <td>20</td>
-                                <td>10</td>
-                            </tr>
-                            <!-- Other rows here -->
->>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                         </tbody>
                     </table>
                 </div>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
             </section>
         </div>
     </div>

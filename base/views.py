@@ -658,7 +658,6 @@ def pdf_report_create(request, request_number):
         return HttpResponse("PDF conversion failed: {}".format(why)) 
 
     
-<<<<<<< HEAD
 from datetime import timedelta
 
 def Rdepartment(request):
@@ -743,16 +742,3 @@ def Ruser(request, pk):
     }
     return render(request, 'report/Ruser.html', context)
 
-=======
-def Rdepartment(request):
-
-    return render(request, 'report/Rdepartment.html')
-
-def Showuser(request):
-
-    return render(request, 'report/Showuser.html')
-
-def Ruser(request, pk):
-
-    return render(request, 'report/Ruser.html')
->>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb

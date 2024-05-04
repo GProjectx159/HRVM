@@ -9,11 +9,7 @@
         <div style="margin: 0px 10px;">
             <div class="container" style="padding: 0px; margin-top: 30px;">
                 <div class="d-flex align-items-center">
-<<<<<<< HEAD
                     <form method="GET" action="{% url 'Showuser' %}" class="d-flex">
-=======
-                    <form method="GET" action="{% url "AcceptRequest" %}" class="d-flex">
->>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                         <input type="text" name="q" class="form-control ms-2" placeholder="ابحث...">
                         <button type="submit" class="btn save-btn " style="width: 50px;">ابحث</button>
                     </form>
@@ -22,11 +18,7 @@
             
             <section class="profile container p-3 pt-4">
                 <div class="table-responsive">
-<<<<<<< HEAD
                     <table  class="table table-striped" align="center">
-=======
-                    <table class="table">
->>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -36,7 +28,6 @@
                             </tr>
                         </thead>
                         <tbody >
-<<<<<<< HEAD
                             {% for user in users %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
@@ -51,16 +42,6 @@
                                 <td colspan="4">لا يوجد مستخدمين مطابقين</td>
                             </tr>
                             {% endfor %}
-=======
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>اسلام محمد</td>
-                                <td>تكنولوجيا المعلومات</td>
-                                <td>
-                                    <a href="{% url 'Ruser' request.user.username %}" class="open btn save-btn ms-2">عرض</a>
-                                </td>
-                            </tr>
->>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                         </tbody>
                     </table>
                 </div>
@@ -68,19 +49,6 @@
         </div>
     </div>
     
-<<<<<<< HEAD
     <br>
 </body>
-=======
-
-    
-    <br>
-</body>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-
-</script>
-
-
->>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
 {% endblock content %}
