@@ -13,6 +13,13 @@
                         <div class="row">
                             <div class="col-md-2 mb-3">
                                 <label for="start_date">من تاريخ:</label>
+<<<<<<< HEAD
+                                <input required type="date" name="start_date" id="start_date" class="form-control">
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="end_date">إلى تاريخ:</label>
+                                <input required type="date" name="end_date" id="end_date" class="form-control">
+=======
                                 <input required type="date" name="start_date" id="start_date" class="form-control" onchange="calculateVacationDays()">
                             </div>
                             <div class="col-md-2 mb-3">
@@ -27,10 +34,17 @@
                                         <option value="{{ alt_user.id }}">{{ alt_user.name }}</option>
                                     {% endfor %}
                                 </select>
+>>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                             </div>
                             <div class="col-md-1 mb-3 mt-3">
                                 <button type="submit" class="btn save-btn mt-2" id="submitButton" style="margin:auto; width: 100%;">بحث</button>
                             </div>
+<<<<<<< HEAD
+                            <div class="col-md-1 mb-3 mt-3">
+                                <a href="{% url 'Ruser' pk %}" class="btn save-btn mt-2" style="margin:auto; width: 100%;"> الكل</a>
+                            </div>
+=======
+>>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                         </div>
                     </form>
 
@@ -43,6 +57,81 @@
                     </div>
                 </div>
                 <div class="table-responsive">
+<<<<<<< HEAD
+                    <table class="table table-striped" align="center">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">الاسم</th>
+                                <th scope="col">نوع الاجازه</th>
+                                <th scope="col">تاريخ الطلب</th>
+                                <th scope="col">من تاريخ</th>
+                                <th scope="col">الي تاريخ</th>
+                                <th scope="col">المدة</th>
+                                <th scope="col">الحالة</th>
+                                <th scope="col">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            {% for vacation in vacations %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">{{ vacation.employee }}</a></td>
+                                <td>{{vacation.get_vacation_type_display}}</td>
+                                {% if department.department_id == 1 %}
+                                <td>{{vacation.employee.department}}</td>
+                                {% endif %}
+                                <td>{{vacation.request_date|date:'d/m/Y'}}</td>
+                                <td>{{vacation.start_date|date:'d/m/Y'}}</td>
+                                <td>{{vacation.end_date|date:'d/m/Y'}}</td>
+                                <td>{{vacation.duration}} ايام</td>
+                                {% if vacation.status == '0' %}
+                                <td><div class="alert alert-warning" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                {% elif vacation.status == '1' %}
+                                <td><div class="alert alert-danger" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                {% else %}
+                                <td><div class="alert alert-success" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                {% endif %}
+                                
+                                <td><a href="{% url 'showMyRequest' vacation.request_number %}" class="btn save-btn ms-2">عرض</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <div class="table-responsive">
+                    <table class="table table-striped" align="center">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">نوع الاجازة</th>
+                                <th scope="col">مجموع الايام</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in total_days %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>
+                                    {% if item.vacation_type == '0' %}
+                                        اجازة اعتيادية
+                                    {% elif item.vacation_type == '1' %}
+                                        اجازة عارضة
+                                    {% elif item.vacation_type == '2' %}
+                                        اجازة مرضية
+                                    {% elif item.vacation_type == '3' %}
+                                        اجازة وضع
+                                    {% elif item.vacation_type == '4' %}
+                                        اذن
+                                    {% elif item.vacation_type == '5' %}
+                                        مأمورية
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.total_days }}</td>
+                            </tr>
+                            {% endfor %}
+=======
                     <table class="table">
                         <thead>
                             <tr>
@@ -60,11 +149,15 @@
                                 <td>10</td>
                             </tr>
                             <!-- Other rows here -->
+>>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                         </tbody>
                     </table>
                 </div>
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
             </section>
         </div>
     </div>

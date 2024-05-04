@@ -6,7 +6,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("Home/", views.home_after, name="home_after"),
 
-    path("signup/", views.sginup, name="signup"),
+    path("signup/", views.signup, name="signup"),
     path('login/', views.loginUser, name='login'),
     path('logout/', views.logoutUser, name='logout'),
 
@@ -17,6 +17,7 @@ urlpatterns = [
     path('updateUser/<str:username>/', views.updateUser, name='updateUser'),
 
     path('manageDepartment/', views.manageDepartment, name='manageDepartment'),
+    path('editdepartment/<int:department_id>/', views.editdepartment, name='editdepartment'),
 
 
     path('reset/password/', views.CustomPasswordResetView.as_view(), name='reset_password'),
@@ -27,7 +28,7 @@ urlpatterns = [
 
     path('requestView/', views.requestView, name='requestView'),
     path('vacationRequest/', views.vacationRequest, name='vacationRequest'),
-    path('saveRequest/', views.saveRequest, name='saveRequest'),
+    # path('saveRequest/', views.saveRequest, name='saveRequest'),
     path('AcceptRequest/', views.AcceptRequest, name='AcceptRequest'),
     path('showRequest/<str:pk>/', views.showRequest, name='showRequest'),
     path('showMyRequest/<str:pk>/', views.showMyRequest, name='showMyRequest'),

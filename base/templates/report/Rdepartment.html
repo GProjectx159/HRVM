@@ -13,6 +13,20 @@
                         <div class="row">
                             <div class="col-md-2 mb-3">
                                 <label for="start_date">من تاريخ:</label>
+<<<<<<< HEAD
+                                <input required type="date" name="start_date" id="start_date" class="form-control" value="{{ start_date|default_if_none:'' }}">
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="end_date">إلى تاريخ:</label>
+                                <input required type="date" name="end_date" id="end_date" class="form-control" value="{{ end_date|default_if_none:'' }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="department">قسم / ادارة:</label>
+                                <select required id="department" name="department" class="form-control">
+                                    <option value="" selected disabled>اختر...</option>
+                                    {% for department in departments %}
+                                        <option value="{{ department.department_id }}" {% if department_id == department.department_id %}selected{% endif %}>{{ department.name }}</option>
+=======
                                 <input required type="date" name="start_date" id="start_date" class="form-control" onchange="calculateVacationDays()">
                             </div>
                             <div class="col-md-2 mb-3">
@@ -25,6 +39,7 @@
                                     <option value="" selected disabled>اختر...</option>
                                     {% for alt_user in allowed_user %}
                                         <option value="{{ alt_user.id }}">{{ alt_user.name }}</option>
+>>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                                     {% endfor %}
                                 </select>
                             </div>
@@ -39,16 +54,78 @@
             <section class="profile container p-3 pt-4">
                 <div class="row justify-content-start">
                     <div class="col-md-1 mb-3">
+<<<<<<< HEAD
+                        <button type="button" class="btn save-btn mt-2" id="printButton" style="margin:auto; width: 100%;" data-toggle="modal" data-target="#namesModal"><i class="fa-solid fa-print" style="width: 20px; height: 20px;"></i></button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped" align="center">
+=======
                         <button type="submit" class="btn save-btn mt-2" id="printButton" style="margin:auto; width: 100%;"><i class="fa-solid fa-print" style="width: 20px; height: 20px;"></i></button>
                     </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table">
+>>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">يوم</th>
                                 <th scope="col">مجموع الاجازات</th>
+<<<<<<< HEAD
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in vacation_data %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ record.date|date:'d/m/Y' }}</td>
+                                <td>{{ record.total_vacations }}</td>
+                                <td><a class="btn save-btn" data-toggle="modal" data-target="#namesModal{{ forloop.counter }}">عرض الأسماء</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table> <!-- إغلاق الجدول -->
+                        
+                        <!-- Modal for each day's vacation names -->
+                        {% for record in vacation_data %}
+                        <div class="modal fade" id="namesModal{{ forloop.counter }}" tabindex="-1" aria-labelledby="namesModalLabel{{ forloop.counter }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="namesModalLabel{{ forloop.counter }}">أسماء الأشخاص الذين استلموا إجازة في {{ record.date|date:'d/m/Y' }}</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">اسم الشخص</th>
+                                                    <th scope="col">اجراء</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for user in record.total_vacations_users %}
+                                                <tr>
+                                                    <th scope="row">{{ forloop.counter }}</th>
+                                                    <td>{{ user.employee.name }}</td>
+                                                    <td><a class="btn save-btn" href="{% url 'Ruser' user.employee.username %}">تقرير</a></td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="modal-footer" style="direction: ltr;">
+                                        <button type="button" class="btn save-btn" data-dismiss="modal">إغلاق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                </div>
+=======
                                 <th scope="col">عدد الحاضرين</th>
                             </tr>
                         </thead>
@@ -65,10 +142,31 @@
                 </div>
 
 
+>>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
             </section>
         </div>
     </div>
     <br>
+<<<<<<< HEAD
+
+    
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#namesModal').on('shown.bs.modal', function() {
+        });
+    });
+</script>
+{% endblock content %}
+
+
+
+=======
 </body>
 
 {% endblock content %}
+>>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb

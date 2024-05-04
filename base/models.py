@@ -64,6 +64,7 @@ class Vacation(models.Model):
     substitute_employee = models.CharField(max_length=100, default='', blank=True, null=True)
     manager_signature = models.ImageField(null=True, blank=True)
 
+
     def save(self, *args, **kwargs):
         # Calculate duration before saving
         self.duration = (self.end_date - self.start_date).days + 1

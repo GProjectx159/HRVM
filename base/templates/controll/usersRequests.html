@@ -15,7 +15,7 @@
                             <a href="{% url "AcceptUsers" user.username %}" style=" text-decoration: none; color: #2e2e2e;"><h3 style="display: inline; margin: 0px;">{{user.name}}</h3></a>
                         </div>
                         <div style="min-width: 135px; box-sizing:content-box; width: 34%;">
-                            <a href="{% url "updateUser" user.username %}" class="btn save-btn ms-2">قبول</a>
+                            <a href="{% url "AcceptUsers" user.username %}" class="btn save-btn ms-2">عرض</a>
                             <a href="{% url "deleteUser" user.username %}" class="btn cancel-btn ">رفض</a>
                         </div>
                     </div>

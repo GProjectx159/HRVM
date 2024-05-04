@@ -102,7 +102,13 @@
         <div>
           <span>توقيع القائم بعمل مدير ادارة / قسم: </span>
           <div style="width: 250px; border: 1px solid #2e2e2e; height: 200px; font-weight: bold; font-size: 18px; padding: 10px; text-align: center; margin-top: 10px;">
-            <img src="data:image/png;base64,{{ data.manager_signature }}" alt="توقيع المدير" width="100%" height="100%">
+            {% if data.manager_signature %}
+              <img src="data:image/png;base64,{{ data.manager_signature }}" alt="توقيع المدير" width="100%" height="100%">
+            {% elif data.vacation.status == '2' %}
+            <span>تم الموافقه علي الاجازه</span>
+            {% else %}
+              <span>لم يتم الموافقه او تم رفض الاجازه</span>
+            {% endif %}
           </div>
         </div>
       </div>

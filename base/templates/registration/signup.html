@@ -14,7 +14,7 @@
                     <div class="inputdiv mb-4 d-inline-block" style="width: 44%; margin-left: 5%;">
                         <label for="name">الاسم رباعي:</label>
                         <br>
-                        <input type="text" class="input_sign " name="name" id="name" placeholder="يرجى كتابة الاسم رباعي" value="{{ form.name.value|default_if_none:'' }}" required>
+                        <input type="text" class="input_sign " name="name" id="name" placeholder="يرجى كتابة الاسم رباعي" minlength="14" value="{{ form.name.value|default_if_none:'' }}" required>
                         {% if error_messages and 'username' in error_messages %}
                         {% for error in error_messages.username %}
                         <p style="color: transparent; margin: 0px;">{{ error }}</p>

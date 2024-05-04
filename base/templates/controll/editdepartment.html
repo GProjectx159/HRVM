@@ -1,0 +1,35 @@
+<!-- edirtdepratment.html -->
+
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<body style="background-color: #f9fafb;">
+        
+  <div style="margin: 0px 10px;">
+  <section class="sign">
+      <form class="register pt-5" style="direction: rtl;" method="POST">
+            {% csrf_token %}
+            <div class="reg m-auto mt-5 pt-5 pb-5 pl-2 pr-2 container">
+            <h2 class="p-3 pt-1 text-center">تعديل بيانات القسم / الاداره</h2>
+            <br>
+            <div class="mb-3">
+                <label for="edit_name">اسم القسم / الاداره:</label>
+                <input required type="text" name="new_daprtment_name" id="edit_name" class="input_profile" value="{{curr_department.name}}">
+            </div>
+            <div class="mb-3">
+                <label for="manager">المدير:</label>
+                <select required id="manager" name="new_manager_id"  class="form-control">
+                    <option value="{{ department_manager.employee.id }}" selected>{{ department_manager.employee }}</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}" >{{ user.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <hr>
+            <button type="submit" class="login d-block btn m-auto mb-2">تعديل</button>
+            <a href="{% url 'manageDepartment' %}" class="d-block btn m-auto">عوده</a>
+        </form>
+  </section>
+</div>
+</body>
+{% endblock content %}

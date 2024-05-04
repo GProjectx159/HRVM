@@ -24,7 +24,7 @@
             </div>
             <section class="profile container p-3 pt-4">
                 <div class="table-responsive">
-                    <table class="table" align="center">
+                    <table class="table table-striped" align="center">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -48,8 +48,8 @@
                                 {% if department.department_id == 1 %}
                                 <td>{{vacation.employee.department}}</td>
                                 {% endif %}
-                                <td>{{vacation.start_date|date:'d/m/Y'}}</td>
-                                <td>{{vacation.duration}}</td>
+                                <td>{{vacation.request_date|date:'d/m/Y'}}</td>
+                                <td>{{vacation.duration}} ايام</td>
                                 {% if vacation.status == '0' %}
                                 <td><div class="alert alert-warning" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
                                 {% elif vacation.status == '1' %}

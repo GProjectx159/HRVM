@@ -1,3 +1,5 @@
+<!-- Navbar.html -->
+
 {% load static %}
 
 <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); background-color: white;">
@@ -21,16 +23,33 @@
                 {% if request.user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px; font-weight: 500;">
+                            {% if no_pending_vacations != 0 %}
+                            <span class="btn save-btn" style="width: 25px; height: 25px; padding: 0px;">
+                                    {{no_pending_vacations}}
+                                </span>
+                            {% endif %}
                             الخدمات
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="direction: rtl;">
                             <li><a class="dropdown-item" href="{% url "requestView" %}">عرض الاجازات</a></li>
                             {% if request.user.is_superuser %}
+<<<<<<< HEAD
+                                
+                                    <li><a class="dropdown-item" href="{% url "AcceptRequest" %}"><span class="btn save-btn ms-2" style="width: 25px; height: 25px; padding: 0px;">
+                                            {{no_pending_vacations}}
+                                        </span>اعتماد الاجازات</a></li>
+                                
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% if request.user.department.department_id == 1 %}
+=======
                                 <li><a class="dropdown-item" href="{% url "AcceptRequest" %}">اعتماد الاجازات</a></li>
                             {% endif %}
                         </ul>
                     </li>
                     {% if request.user.department.department_id == 1 or request.user.is_superuser %}
+>>>>>>> 037adee7342f6e8381c6f3b6369c89c6e04384cb
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px; font-weight: 500;">
                                 تقارير
@@ -46,12 +65,16 @@
                     {% if request.user.department.department_id == 1 and request.user.is_superuser %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px; font-weight: 500;">
-                                <span class="btn save-btn" style="width: 25px; height: 25px; padding: 0px;">0</span>
+                                {% if no_unactive_requests != 0 %}
+                                    <span class="btn save-btn" style="width: 25px; height: 25px; padding: 0px;">
+                                        {{no_unactive_requests}}
+                                    </span>
+                                {% endif %}
                                 التحكم
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="direction: rtl;">
                                 <li><a class="dropdown-item" href="{% url "manageDepartment" %}">ادارة الاقسام / الادارات</a></li>
-                                <li><a class="dropdown-item" href="{% url "usersRequests" %}"><span class="btn save-btn ms-2" style="width: 25px; height: 25px; padding: 0px;">0</span>طلبات الانضمام</a></li>
+                                <li><a class="dropdown-item" href="{% url "usersRequests" %}"><span class="btn save-btn ms-2" style="width: 25px; height: 25px; padding: 0px;">{{no_unactive_requests}}</span>طلبات الانضمام</a></li>
                             </ul>
                         </li>
                     {% endif %}
@@ -60,15 +83,21 @@
             <ul class="navbar-nav me-auto">
                 
                 {% if request.user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'user-profile' request.user.username %}" style="font-size: 18px; font-weight: 500;">
-                            {{ request.user.username }}
+                    <li class="nav-item dropdown" style="direction: ltr;">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px; font-weight: 500;">
                             <img src="{% static 'image/avatar.svg' %}" alt="User Profile" style="width: 30px; height: 30px; margin-left: 10px;">
+                            {{ request.user.username }}
                         </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="direction: rtl;">
+                            <li><a class="dropdown-item" href="{% url "user-profile" request.user.username %}">عرض المـلف الشخصي</a></li>
+                            <li><a class="dropdown-item" href="{% url "password_change" %}">تغيير كلمه المرور</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url "logout" %}">تسجيل الخروج</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="btn save-btn" href="{% url 'logout' %}" style="font-size: 15px; width: 10%; margin-top: 5px;">تسجيل خروج</a>
-                    </li>
+                    </li> -->
                 {% endif %}
             </ul>
         </div>
