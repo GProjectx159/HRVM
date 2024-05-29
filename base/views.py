@@ -1,44 +1,86 @@
-from django.shortcuts import render, redirect
+from django.contrib.auth import logout, authenticate, login as auth_login
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.decorators import login_required
-from .forms import MyUserCreationForm
-from django.contrib.auth import logout
-from django.contrib.auth import authenticate, login as auth_login
-from .models import User, DepartmentManager, Vacation, Department
 from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth.tokens import default_token_generator
+
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.template.loader import render_to_string
-from django.core.mail import send_mail
 from django.utils.html import strip_tags
-from django.conf import settings
-from django.db.models import Q, Max, F
-from datetime import datetime, timedelta
+from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 
-from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.utils import timezone
+from django.db.models import Q, Max, F
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from django.http import HttpResponseRedirect
-
-from django.http import HttpResponse
-from django.utils import timezone
 
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
+from django.conf import settings
+from .forms import MyUserCreationForm
+from .models import User, DepartmentManager, Vacation, Department
+from datetime import datetime, timedelta
 
 import os
-
 import base64
 import pdfcrowd
-
-def home(request):
- if request.user.is_authenticated:
-        return redirect('home_after')
- return render(request, "main_page/home.html", {})
 
 def error_404_view(request, exception):
     return render(request, 'error_page/404.html')
 
+def home(request):
+    if request.user.is_authenticated:
+            return redirect('home_after')
+    return render(request, "main_page/home.html")
+
+@login_required(login_url='login')
+def home_after(request):
+    return render(request, "main_page/home_after.html")
+
+def loginUser(request):
+    form = None
+    if request.user.is_authenticated:
+        return redirect('home_after')
+
+    error_message = None
+    if request.method == 'POST':
+        email = request.POST.get('email').lower()
+        password = request.POST.get('password')
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = None
+
+        if user is not None and user.is_active: 
+            user = authenticate(request, email=email, password=password)
+
+            if user is not None:
+                auth_login(request, user)
+                if user.is_superuser:
+                    return redirect('AcceptRequest')
+                else:
+                    return redirect('user-profile', username = request.user.username)
+            else:
+                error_message = 'اسم المستخدم او كلمة المرور خطأ'
+                submitted_data = request.POST.copy() 
+                form = MyUserCreationForm(submitted_data)
+
+        elif user is not None and not user.is_active:
+            error_message = 'حسابك لم ينشط بعد اتصل بالدعم'
+            submitted_data = request.POST.copy() 
+            form = MyUserCreationForm(submitted_data)
+
+        else:
+            error_message = 'اسم المستخدم او كلمة المرور خطأ'
+            submitted_data = request.POST.copy() 
+            form = MyUserCreationForm(submitted_data)
+
+    return render(request, 'registration/login.html', {'form':form , 'error_message': error_message})
 
 class CustomPasswordResetView(PasswordResetView):
     form_class = PasswordResetForm
@@ -71,56 +113,6 @@ class CustomPasswordResetView(PasswordResetView):
 
         return HttpResponseRedirect(self.get_success_url())
     
-@login_required(login_url='login')
-def home_after(request):
- return render(request, "main_page/home_after.html")
-
-
-def loginUser(request):
-    form = None
-    if request.user.is_authenticated:
-        return redirect('home_after')
-
-    error_message = None
-
-    if request.method == 'POST':
-        email = request.POST.get('email').lower()
-        password = request.POST.get('password')
-
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            user = None
-
-        if user is not None and user.is_active: 
-            user = authenticate(request, email=email, password=password)
-
-            if user is not None:
-                
-                auth_login(request, user)
-                if user.is_superuser:
-                    return redirect('AcceptRequest')
-                else:
-                    return redirect('user-profile', username = request.user.username)
-            else:
-                error_message = 'اسم المستخدم او كلمة المرور خطأ'
-                submitted_data = request.POST.copy() 
-                form = MyUserCreationForm(submitted_data)
-
-        elif user is not None and not user.is_active:
-            error_message = 'حسابك لم ينشط بعد اتصل بالدعم'
-            submitted_data = request.POST.copy() 
-            form = MyUserCreationForm(submitted_data)
-
-        else:
-            error_message = 'اسم المستخدم او كلمة المرور خطأ'
-            submitted_data = request.POST.copy() 
-            form = MyUserCreationForm(submitted_data)
-
-    return render(request, 'registration/login.html', {'form':form , 'error_message': error_message})
-
-
-
 def signup(request):
     error_messages = None
     
@@ -129,15 +121,13 @@ def signup(request):
         if form.is_valid():
             email = form.cleaned_data.get('email')
             
-            # التحقق من صحة البريد الإلكتروني
             try:
                 validate_email(email)
             except ValidationError:
                 error_messages = {'email': ['يرجى إدخال بريد إلكتروني صحيح.']}
-                form = MyUserCreationForm(request.POST)  # إعادة تحميل النموذج مع رسالة الخطأ
+                form = MyUserCreationForm(request.POST)
                 return render(request, "registration/signup.html", {"form": form, "error_messages": error_messages})
             
-            # هنا يمكنك الاستمرار في إنشاء الحساب بعد التحقق من صحة البريد الإلكتروني
             user = form.save(commit=False)
             employee_identity = form.cleaned_data.get('employee_identity')
             info = extract_info_from_national_id(employee_identity)
@@ -154,7 +144,6 @@ def signup(request):
         form = MyUserCreationForm()
     
     return render(request, "registration/signup.html", {"form": form, "error_messages": error_messages})
-
 
 fake_national_id_message = 'This ID Not Valid'
 
@@ -210,23 +199,19 @@ def logoutUser(request):
 def userprofile(request, username):
     user = User.objects.get(username=username)
     if request.method == 'POST':
-        new_address = request.POST.get('address')
-        new_phone = request.POST.get('phone')
-        user.address = new_address
-        user.phone = new_phone
+        user.address = request.POST.get('address')
+        user.phone = request.POST.get('phone')
         user.save()
         
         if 'newSignature' in request.FILES:
-            new_signature = request.FILES['newSignature']
             try:
                 manager = DepartmentManager.objects.get(department=user.department)
-                manager.signature = new_signature
+                manager.signature = request.FILES['newSignature']
                 manager.save()
             except DepartmentManager.DoesNotExist:
                 pass
 
             return redirect('user-profile', username=username)
-        
     try:
         manager = DepartmentManager.objects.get(department=user.department)
     except DepartmentManager.DoesNotExist:
@@ -248,6 +233,7 @@ def usersRequests(request):
         return render(request, "main_page/home_after.html", context)
     return render(request, "controll/usersRequests.html", context)
 
+@login_required(login_url='login')
 def acceptUsers(request, username):
     user = User.objects.get(username=username)
     context = {
@@ -255,12 +241,13 @@ def acceptUsers(request, username):
     }
     return render(request, "controll/acceptUsers.html", context)
 
+@login_required(login_url='login')
 def deleteUser(request, username):
     user = User.objects.get(username=username)
     user.delete()
-
     return usersRequests(request)
 
+@login_required(login_url='login')
 def updateUser(request, username):
     user = User.objects.get(username=username)
     is_superuser = request.POST.get('is_superuser')
@@ -274,35 +261,29 @@ def updateUser(request, username):
         manager.save()
     else:
         user.is_superuser = False
-        
+
     user.is_active = True
     user.save()
     
     return usersRequests(request)
 
+@login_required(login_url='login')
 def manageDepartment(request):
-    # Get all departments and managers
     departments = Department.objects.all()
     managers = DepartmentManager.objects.all()
 
-    # Create dictionaries to store departments and managers
     department_dict = {department.department_id: department for department in departments}
     manager_dict = {manager.department_id: manager for manager in managers}
 
-    # Merge departments and managers
     full_join_result = []
 
-    # Iterate over departments
     for department_id, department in department_dict.items():
         manager = manager_dict.get(department_id)
         if manager:
-            # If manager exists for the department, add to the result
             full_join_result.append((department, manager))
         else:
-            # If no manager exists, add the department with None for manager
             full_join_result.append((department, None))
 
-    # Include managers without departments
     for manager_id, manager in manager_dict.items():
         if manager_id not in department_dict:
             full_join_result.append((None, manager))
@@ -319,7 +300,6 @@ def manageDepartment(request):
 
     """
 
-    # Add a new department
     if request.method == 'POST':
         department_name = request.POST.get('department_name')
         department_manager_id = request.POST.get('department_manager')
@@ -337,8 +317,6 @@ def manageDepartment(request):
             department = department,
         )
         return redirect("manageDepartment")
-
-        
 
     manager_list_ids = DepartmentManager.objects.values_list("employee__id")
     users = User.objects.all().exclude(id__in=manager_list_ids)
@@ -379,7 +357,6 @@ def editdepartment(request, department_id):
             department_manager = DepartmentManager.objects.filter(department=curr_department)
             department_manager.update(employee = new_manager)
             
-            
         else:
             department_manager = DepartmentManager.objects.create(
                 employee = new_manager,
@@ -390,7 +367,6 @@ def editdepartment(request, department_id):
         new_manager.is_superuser = True
         new_manager.save()
         return redirect("manageDepartment")
-
 
     department_manager = DepartmentManager.objects.get(department=curr_department) if DepartmentManager.objects.filter(department=curr_department).exists() else None
     
@@ -606,12 +582,10 @@ def reject_vacation(request, request_number):
 def pdf_report_create(request, request_number):
     template_path = 'other_temp/pdf_template.html'
 
-    # افترض أن اسم الصورة هو 'NCTU-logo-1 (1) (1).png' في مجلد media/base/images
     logo_path = os.path.join(settings.MEDIA_ROOT, 'NCTU-logo-1 (2).png')
     try:
         with open(logo_path, 'rb') as image_file:
             image_data = image_file.read()
-        # Encode the image data to base64
         logo = base64.b64encode(image_data).decode('utf-8')
     except FileNotFoundError:
         logo = ''
@@ -622,7 +596,6 @@ def pdf_report_create(request, request_number):
     try:
         with open(manager_signature_path, 'rb') as image_file:
             image_data = image_file.read()
-        # Encode the image data to base64
         manager_signature = base64.b64encode(image_data).decode('utf-8')
     except FileNotFoundError:
         manager_signature = ''
@@ -630,8 +603,8 @@ def pdf_report_create(request, request_number):
     data = {
         "vacation": vacation,
         "department": vacation.employee.department.name,
-        "logo": logo,  # Pass the base64 string to the template
-        "manager_signature": manager_signature,  # Pass the base64 string to the template
+        "logo": logo, 
+        "manager_signature": manager_signature, 
     }
 
     context = {'data': data}
@@ -639,22 +612,17 @@ def pdf_report_create(request, request_number):
     html_string = render_to_string(template_path, context)
 
     try:
-        # Replace 'Gprojectx159' and '9169456ae59c510b81bc2bd5f3aa19e6' with your PDFCrowd username and API key
-        client = pdfcrowd.HtmlToPdfClient('eslamx144', 'fa2c8229a1c90cc353bafd3cb53deddb')
+        client = pdfcrowd.HtmlToPdfClient('eslamt147', 'f9469b33bd059981cf203ba75288c057')
         
-        # Convert HTML string to PDF and save it to a file named "Vacation_report.pdf"
         client.convertStringToFile(html_string, 'Vacation_report.pdf')
 
-        # Read the generated PDF file
         with open('Vacation_report.pdf', 'rb') as pdf_file:
             pdf = pdf_file.read()
         
-        # Set response content type
         response = HttpResponse(pdf, content_type='application/pdf')
         return response
 
     except pdfcrowd.Error as why:
-        # In case of error, return error message
         return HttpResponse("PDF conversion failed: {}".format(why)) 
 
     
@@ -673,17 +641,13 @@ def Rdepartment(request):
         end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
         department_id = request.POST.get('department')
 
-        # Querying vacation data based on selected criteria
         vacation_records = Vacation.objects.filter(start_date__range=[start_date, end_date], end_date__range=[start_date, end_date], employee__department_id=department_id, status=2)
         total_users = User.objects.filter(department_id=department_id).count()
-        # Loop through each date in the selected range
         current_date = start_date
         while current_date <= end_date:
-            # Counting vacations for each day
             total_vacations = vacation_records.filter(start_date__lte=current_date, end_date__gte=current_date, status=2).count()
             total_vacations_users = vacation_records.filter(start_date__lte=current_date, end_date__gte=current_date, status=2)
 
-            # Appending data to the list
             vacation_data.append({
                 'date': current_date,
                 'total_vacations': total_vacations,
@@ -691,7 +655,6 @@ def Rdepartment(request):
                 'total_vacations_users' : total_vacations_users
             })
 
-            # Moving to the next day
             current_date += timedelta(days=1)
 
     context = {
@@ -726,7 +689,6 @@ def Ruser(request, pk):
             start_date = timezone.make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
             end_date = timezone.make_aware(datetime.strptime(end_date, '%Y-%m-%d'))
             vacations = Vacation.objects.filter(employee__username=pk, start_date__range=[start_date, end_date], status=2)
-            # استعلام لاسترداد مجموع عدد أيام كل نوع من الاجازات في الفترة المحددة والتي ليست لديها حالة status = 1
             total_days = vacations.values('vacation_type').annotate(total_days=Sum('duration'))
         else:
             vacations = Vacation.objects.filter(employee__username=pk, status=2)
@@ -741,4 +703,3 @@ def Ruser(request, pk):
         'pk': pk,
     }
     return render(request, 'report/Ruser.html', context)
-
