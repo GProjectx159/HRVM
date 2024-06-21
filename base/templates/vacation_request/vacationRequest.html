@@ -28,7 +28,7 @@
                                     <label for="vacation_type">نوع الإجازة:</label>
                                     <select id="vacation_type" name="vacation_type" class="form-control" required onchange="calculateVacationDays()"> 
                                         <option value="" selected disabled>اختر...</option>
-                                        <option value="0">إجازة عادية ({{ user.vacation1 }}/{{ user.vacation1_balance }})</option>
+                                        <option value="0">إجازة اعتيادية ({{ user.vacation1 }}/{{ user.vacation1_balance }})</option>
                                         <option value="1">إجازة عارضة (7/{{ user.vacation2_balance }})</option>
                                         <option value="2">إجازة مرضية (10/{{ user.vacation3_balance }})</option>
                                         {% if user.gender == 'Female' %}

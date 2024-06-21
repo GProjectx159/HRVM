@@ -34,10 +34,13 @@
                             <label for="email">مرضي:</label>
                             <input readonly type="email" name="email" id="email" class="input_profile" value="{{user.vacation3_balance}}">
                         </div>
+                        {% if user.gender == 'Female' %}
                         <div class="col-md-3 mb-3">
                             <label for="email">وضع:</label>
                             <input readonly type="email" name="email" id="email" class="input_profile" value="{{user.vacation4_balance}}">
                         </div>
+                        {% endif %}
+                        
                     </div>
                     <hr>
                     <h3>• البيانات الشخصيه</h3>

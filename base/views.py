@@ -628,7 +628,10 @@ def pdf_report_create(request, request_number):
     
 from datetime import timedelta
 
+context_report = {}  # تحويل context_report إلى متغير عالمي
+
 def Rdepartment(request):
+    global context_report  # تعريف context_report كمتغير عالمي
     departments = Department.objects.all()
     vacation_data = []
 
@@ -639,32 +642,92 @@ def Rdepartment(request):
     if request.method == 'POST':
         start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
         end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
-        department_id = request.POST.get('department')
+        department_id = int(request.POST.get('department'))  # Convert to integer
 
-        vacation_records = Vacation.objects.filter(start_date__range=[start_date, end_date], end_date__range=[start_date, end_date], employee__department_id=department_id, status=2)
+        vacation_records = Vacation.objects.filter(
+            start_date__range=[start_date, end_date],
+            end_date__range=[start_date, end_date],
+            employee__department_id=department_id,
+            status=2
+        )
         total_users = User.objects.filter(department_id=department_id).count()
         current_date = start_date
         while current_date <= end_date:
-            total_vacations = vacation_records.filter(start_date__lte=current_date, end_date__gte=current_date, status=2).count()
-            total_vacations_users = vacation_records.filter(start_date__lte=current_date, end_date__gte=current_date, status=2)
+            total_vacations = vacation_records.filter(
+                start_date__lte=current_date,
+                end_date__gte=current_date,
+                status=2
+            ).count()
+            total_vacations_users = vacation_records.filter(
+                start_date__lte=current_date,
+                end_date__gte=current_date,
+                status=2
+            )
 
             vacation_data.append({
                 'date': current_date,
                 'total_vacations': total_vacations,
                 'total_users': total_users - total_vacations,
-                'total_vacations_users' : total_vacations_users
+                'total_vacations_users': total_vacations_users
             })
 
             current_date += timedelta(days=1)
 
-    context = {
+    context_report = {
         'departments': departments,
         'vacation_data': vacation_data,
         'start_date': start_date,
         'end_date': end_date,
         'department_id': department_id,
     }
-    return render(request, 'report/Rdepartment.html', context)
+
+    return render(request, 'report/Rdepartment.html', context_report)
+
+
+def pdf_report_department(request, department):
+    global context_report  # تعريف context_report كمتغير عالمي
+    template_path = 'other_temp/report_department.html'
+
+    logo_path = os.path.join(settings.MEDIA_ROOT, 'NCTU-logo-1 (2).png')
+    try:
+        with open(logo_path, 'rb') as image_file:
+            image_data = image_file.read()
+        logo = base64.b64encode(image_data).decode('utf-8')
+    except FileNotFoundError:
+        logo = ''
+
+    # Check if context_report contains the necessary keys
+    if 'start_date' not in context_report or 'end_date' not in context_report or 'department_id' not in context_report:
+        return HttpResponse("Required data not found in context_report", status=400)
+
+    data = {
+        'department': department,
+        'vacation_data': context_report['vacation_data'],
+        'start_date': context_report['start_date'],
+        "logo": logo, 
+        'end_date': context_report['end_date'],
+    }
+
+    context = {'data': data}
+
+    html_string = render_to_string(template_path, context)
+
+    try:
+        client = pdfcrowd.HtmlToPdfClient('eslamt147', 'f9469b33bd059981cf203ba75288c057')
+        client.convertStringToFile(html_string, 'Vacation_report_department.pdf')
+
+        with open('Vacation_report_department.pdf', 'rb') as pdf_file:
+            pdf = pdf_file.read()
+
+        response = HttpResponse(pdf, content_type='application/pdf')
+        return response
+
+    except pdfcrowd.Error as why:
+        return HttpResponse(f"PDF conversion failed: {why}", status=500)
+
+
+
+
 
 
 def Showuser(request):
@@ -697,9 +760,26 @@ def Ruser(request, pk):
         vacations = Vacation.objects.filter(employee__username=pk, status=2)
         total_days = vacations.values('vacation_type').annotate(total_days=Sum('duration'))
     
-    context = {
+    context_report = {
         'vacations': vacations,
         'total_days': total_days,
         'pk': pk,
     }
-    return render(request, 'report/Ruser.html', context)
+    return render(request, 'report/Ruser.html', context_report)
+
+def Rday(request):
+    users_vacations = None
+    manager_vacations = None
+    if request.method == 'POST':
+        selected_date = datetime.strptime(request.POST.get('selected_date'), '%Y-%m-%d').date()
+        # البحث عن الأيام التي تتزامن مع تاريخ المحدد
+        users_vacations = Vacation.objects.filter(start_date__lte=selected_date, end_date__gte=selected_date, employee__is_superuser=False)
+        manager_vacations = Vacation.objects.filter(start_date__lte=selected_date, end_date__gte=selected_date, employee__is_superuser=True)
+    else:
+        users_vacation = manager_vacation = None
+    
+    context = {
+        'users_vacations': users_vacations,
+        'manager_vacations': manager_vacations,
+    }
+    return render(request, 'report/Rday.html', context)

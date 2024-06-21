@@ -37,10 +37,14 @@ urlpatterns = [
     path('reject/<int:request_number>/', views.reject_vacation, name='reject_vacation'),
 
     path('pdf_view/<int:request_number>/', views.pdf_report_create, name="pdf_view"),
+    path('pdf_view/<str:department>/', views.pdf_report_department, name="pdf_view_department"),
+
 
     path('Rdepartment/', views.Rdepartment, name="Rdepartment"),
     path('Showuser/', views.Showuser, name="Showuser"),
     path('Ruser/<str:pk>/', views.Ruser, name="Ruser"),
+    path('Rday/', views.Rday, name="Rday"),
+
 
 ]
 

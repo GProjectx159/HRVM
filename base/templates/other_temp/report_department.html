@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ar">
+  <head>
+    <meta charset="utf-8">
+    <style>
+      .row {
+        display: flex;
+        font-size: 18px; 
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+      table {
+        font-size: 18px;
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+        page-break-inside: auto;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+      }
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+      footer {
+        text-align: center;
+        margin-top: 20px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: white;
+        padding: 10px 0;
+      }
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 20px;
+        direction: rtl;
+      }
+      body {
+        margin: 0px;
+        direction: rtl;
+      }
+      @media print {
+        footer {
+          position: fixed;
+          bottom: 0;
+        }
+        table {
+          page-break-after: auto;
+        }
+        tr {
+          page-break-inside: avoid;
+          page-break-after: auto;
+        }
+        thead {
+          display: table-header-group;
+        }
+        tfoot {
+          display: table-footer-group;
+        }
+      }
+    </style>
+  </head>
+  <header style="text-align: center; display: flex; align-items: center; justify-content: space-between;" >
+    <!-- Use the base64 string directly in the src attribute -->
+    <div style="width: 290px; border: 1px solid #2e2e2e; height: 100px; font-weight: bold; font-size: 18px;">
+      <p style="margin: 0px; margin-top: 10px;">New Cairo University Technology</p>
+      <p style="margin: 5px 0px; font-size: 16px;">Faculty of industry & Energy Technology</p>
+      <p style="margin: 0px;">Department of Human Resources</p>
+    </div>
+    <img src="data:image/png;base64,{{ data.logo }}" width="100px" height="100px">
+    <div style="width: 290px; border: 1px solid #2e2e2e; height: 100px; font-weight: bold; font-size: 20px;">
+      <p style="margin: 0px; margin-top: 10px;">جامعة القاهرة الجديدة التكنولوجية</p>
+      <p style="margin: 5px 0px;">كلية تكنولوجيا الصناعة</p>
+      <p style="margin: 0px;">والطاقه - ادارة الموارد البشرية</p>
+    </div>
+  </header>
+  <body>
+
+    <hr>
+    <div style="text-align: center;">
+      <h2><u>تقرير عن قسم / اداره</u></h2>
+    </div>
+    <br><br><br>
+    <div class="row">
+      <span>قسم / ادارة: {{data.department}}</span>
+    </div>
+    <div class="grid-container">
+      <div class="row">
+        <span>من: {{data.start_date|date:'d/m/Y'}}</span>
+      </div>
+      <div class="row">
+        <span>الى: {{data.end_date|date:'d/m/Y'}}</span>
+      </div>
+      
+      <div class="row" style="margin-top: 15px;">
+        <span id="current-date">تحريراً في: </span>
+      </div>
+      <div class="row">
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>يوم</th>
+          <th>مجموع الاجازات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in data.vacation_data %}
+        <tr>
+          <th scope="row">{{ forloop.counter }}</th>
+          <td>{{ record.date|date:'d/m/Y' }}</td>
+          <td>{{ record.total_vacations }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <footer>
+      <br><br>
+      <hr>
+      <h4 style="margin-top: 0px;">القاهره الجديدة - التجمع الخامس - شارع النصر - اللوتس الجنوبية</h4>
+    </footer>
+  </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var today = new Date();
+      var day = String(today.getDate()).padStart(2, '0');
+      var month = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+      var year = today.getFullYear();
+
+      var todayDate = day + '/' + month + '/' + year;
+      document.getElementById('current-date').textContent += todayDate;
+    });
+  </script>
+</html>
