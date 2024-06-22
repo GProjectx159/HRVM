@@ -18,6 +18,7 @@ urlpatterns = [
 
     path('manageDepartment/', views.manageDepartment, name='manageDepartment'),
     path('editdepartment/<int:department_id>/', views.editdepartment, name='editdepartment'),
+    path('removedepartment/<int:department_id>/', views.removedepartment, name='removedepartment'),
 
 
     path('reset/password/', views.CustomPasswordResetView.as_view(), name='reset_password'),

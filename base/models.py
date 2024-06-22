@@ -21,8 +21,8 @@ class User(AbstractUser):
     address = models.CharField(max_length=1000, default='', blank=True, null=True)
     gender = models.CharField(max_length=10, default='')
 
-    vacation1 = models.IntegerField(default=15) 
-    vacation1_balance = models.IntegerField(default=15) #اجازه اعتياديه
+    vacation1 = models.IntegerField(default=0) 
+    vacation1_balance = models.IntegerField(default=0) #اجازه اعتياديه
     vacation2_balance = models.IntegerField(default=7) #اجازه عارضه
     vacation3_balance = models.IntegerField(default=10) #اجازه مرضيه
     vacation4_balance = models.IntegerField(default=2) #اجازه وضع

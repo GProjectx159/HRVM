@@ -23,7 +23,7 @@
                 {% if request.user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px; font-weight: 500;">
-                            {% if no_pending_vacations != 0 %}
+                            {% if no_pending_vacations != 0 and request.user.is_superuser %}
                             <span class="btn save-btn" style="width: 25px; height: 25px; padding: 0px;">
                                     {{no_pending_vacations}}
                                 </span>

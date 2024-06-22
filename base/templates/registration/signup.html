@@ -15,9 +15,9 @@
                         <label for="name">الاسم رباعي:</label>
                         <br>
                         <input type="text" class="input_sign " name="name" id="name" placeholder="يرجى كتابة الاسم رباعي" minlength="14" value="{{ form.name.value|default_if_none:'' }}" required>
-                        {% if error_messages and 'username' in error_messages %}
-                        {% for error in error_messages.username %}
-                        <p style="color: transparent; margin: 0px;">{{ error }}</p>
+                        {% if error_messages and 'name' in error_messages %}
+                        {% for error in error_messages.name %}
+                        <p style="color: #BF3131; margin: 0px;">{{ error }}</p>
                         {% endfor %}
                         {% endif %}
                     </div>

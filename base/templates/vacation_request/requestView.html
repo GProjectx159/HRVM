@@ -9,6 +9,7 @@
             <div class="container" style="padding: 0px; margin-top: 30px;">
                 <div class="d-flex align-items-center">
                     <a class="btn save-btn" id="open" style="cursor: pointer;" href="{% url 'vacationRequest' %}">إجازة جديدة</a>
+                    {% if not request.user.is_superuser and request.user.department.department_id != 1 %}
                     <div class="dropdown">
                         <button class="btn dropdown-toggle save-btn me-2" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             حالة الإجازة
@@ -20,8 +21,18 @@
                             <li><a class="dropdown-item" href="{% url 'requestView' %}?q=1">تم الرفض</a></li>
                         </ul>
                     </div>
+                    {% endif %}
+                    {% if request.user.is_superuser or request.user.department.department_id == 1 %}
+                    <div class="d-flex align-items-center me-2">
+                        <form method="GET" action="{% url 'requestView' %}" class="d-flex">
+                            <input type="text" name="search" class="form-control ms-2" placeholder="ابحث..." value="{{ request.GET.search }}">
+                            <button type="submit" class="btn save-btn" style="width: 50px;">ابحث</button>
+                        </form>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
+            
             <section class="profile container p-3 pt-4">
                 <div class="table-responsive">
                     <table class="table table-striped" align="center">

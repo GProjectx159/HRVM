@@ -119,6 +119,13 @@ def signup(request):
     if request.method == "POST":
         form = MyUserCreationForm(request.POST)
         if form.is_valid():
+            Name = form.cleaned_data.get('name')
+            
+            if len(Name.split()) != 4:
+                error_messages = {'name': ['يرجى إدخال الاسم الرباعي.']}
+                form = MyUserCreationForm(request.POST)
+                return render(request, "registration/signup.html", {"form": form, "error_messages": error_messages})
+            
             email = form.cleaned_data.get('email')
             
             try:
@@ -138,12 +145,13 @@ def signup(request):
             return redirect("login")
         else:
             error_messages = form.errors
-            submitted_data = request.POST.copy() 
+            submitted_data = request.POST.copy()
             form = MyUserCreationForm(submitted_data)
     else:
         form = MyUserCreationForm()
     
     return render(request, "registration/signup.html", {"form": form, "error_messages": error_messages})
+
 
 fake_national_id_message = 'This ID Not Valid'
 
@@ -205,7 +213,7 @@ def userprofile(request, username):
         
         if 'newSignature' in request.FILES:
             try:
-                manager = DepartmentManager.objects.get(department=user.department)
+                manager = DepartmentManager.objects.get(department = user.department.department_id)
                 manager.signature = request.FILES['newSignature']
                 manager.save()
             except DepartmentManager.DoesNotExist:
@@ -213,7 +221,7 @@ def userprofile(request, username):
 
             return redirect('user-profile', username=username)
     try:
-        manager = DepartmentManager.objects.get(department=user.department)
+        manager = DepartmentManager.objects.get(department = user.department.department_id)
     except DepartmentManager.DoesNotExist:
         manager = None
         
@@ -250,18 +258,6 @@ def deleteUser(request, username):
 @login_required(login_url='login')
 def updateUser(request, username):
     user = User.objects.get(username=username)
-    is_superuser = request.POST.get('is_superuser')
-
-    if is_superuser:
-        user.is_superuser = True
-        manager = DepartmentManager (
-            employee = user,
-            department = user.department
-        )
-        manager.save()
-    else:
-        user.is_superuser = False
-
     user.is_active = True
     user.save()
     
@@ -319,7 +315,7 @@ def manageDepartment(request):
         return redirect("manageDepartment")
 
     manager_list_ids = DepartmentManager.objects.values_list("employee__id")
-    users = User.objects.all().exclude(id__in=manager_list_ids)
+    users = User.objects.filter(is_active = True, is_superuser = False).exclude(id__in=manager_list_ids)
     context = {
         'full_join_result' : full_join_result,
         'users' : users,
@@ -352,6 +348,12 @@ def editdepartment(request, department_id):
         curr_department.name = new_department_name
         curr_department.save()
 
+        department_manager = DepartmentManager.objects.get(department=curr_department) if DepartmentManager.objects.filter(department=curr_department).exists() else None
+        if department_manager != None:
+            old_user = User.objects.get(id = department_manager.employee.id)
+            old_user.is_superuser = False
+            old_user.save()
+
         new_manager = User.objects.get(id=new_manager_id)
         if DepartmentManager.objects.filter(department=curr_department).exists():
             department_manager = DepartmentManager.objects.filter(department=curr_department)
@@ -364,6 +366,7 @@ def editdepartment(request, department_id):
             )
             department_manager.save()
         
+
         new_manager.is_superuser = True
         new_manager.save()
         return redirect("manageDepartment")
@@ -371,7 +374,7 @@ def editdepartment(request, department_id):
     department_manager = DepartmentManager.objects.get(department=curr_department) if DepartmentManager.objects.filter(department=curr_department).exists() else None
     
     manager_list_ids = DepartmentManager.objects.values_list("employee__id")
-    users = User.objects.all().exclude(id__in=manager_list_ids)
+    users = User.objects.filter(is_active = True, is_superuser = False, department = curr_department).exclude(id__in=manager_list_ids)
     context = {
         'curr_department' : curr_department,
         'department_manager' : department_manager,
@@ -381,25 +384,44 @@ def editdepartment(request, department_id):
 
     return render(request, "controll/editdepartment.html", context)
 
+def removedepartment(request, department_id):
+
+    department_manager = DepartmentManager.objects.get(department = department_id)
+    old_user = User.objects.get(id = department_manager.employee.id)
+    old_user.is_superuser = False
+    old_user.save()
+
+    department_manager.delete()
+
+    return redirect("manageDepartment")
+
 
 def requestView(request):
     q = request.GET.get('q')
+    search = request.GET.get('search')
 
     if request.user.department.department_id == 1:
         vacations = Vacation.objects.filter(status=2).order_by('-request_number')
     elif request.user.is_superuser:
-        vacations = Vacation.objects.filter(employee__department__department_id=request.user.department.department_id,status=2).order_by('-request_number')
+        vacations = Vacation.objects.filter(employee__department__department_id=request.user.department.department_id, status=2).order_by('-request_number')
     else:
         vacations = Vacation.objects.filter(employee=request.user).order_by('-request_number')
 
     if q:
         vacations = vacations.filter(status=q)
+    
+    if search:
+        vacations = vacations.filter(
+            Q(employee__name__icontains=search) |
+            Q(request_number__icontains=search)
+        )
 
     context = {
         'vacations': vacations,
         'department': request.user.department
     }
     return render(request, "vacation_request/requestView.html", context)
+
 
 
 def AcceptRequest(request):
@@ -422,8 +444,23 @@ def AcceptRequest(request):
     
 def vacationRequest(request):
     user = User.objects.get(username=request.user.username)
-    allowed_user = User.objects.filter(department=user.department).exclude(pk=user.pk)
+    allowed_user = User.objects.filter(department=user.department, is_superuser = False).exclude(pk=user.pk)
     error_message = None
+
+    
+    difference = datetime.now().date() - user.startwork_date.date()
+    
+    if difference.days >= 180:  
+        if user.vacation1 == 0:
+            user.vacation1 = 15
+            user.vacation1_balance += 15  
+            user.save()
+
+    if difference.days >= 365:  
+        if user.vacation1 == 15:
+            user.vacation1 = 21
+            user.vacation1_balance += 6  
+            user.save()
 
     if request.method == 'POST':
         vacation_type = request.POST.get('vacation_type')
@@ -451,8 +488,7 @@ def vacationRequest(request):
         if not error_message:
             max_request_number = Vacation.objects.aggregate(Max('request_number'))['request_number__max']
             request_number = max_request_number + 1 if max_request_number is not None else 1
-            duration = (end_date - start_date).days
-
+            duration = (end_date - start_date).days + 1
             leave_request = Vacation(
                 status=0,
                 request_date=datetime.now().date(),
@@ -466,7 +502,8 @@ def vacationRequest(request):
                 attachment=attachment,
                 description=description
             )
-
+            if leave_request.vacation_type == '1' or leave_request.vacation_type == '2':
+                leave_request.status = 2
             leave_request.save()
 
             if vacation_type == '0':
@@ -600,8 +637,26 @@ def pdf_report_create(request, request_number):
     except FileNotFoundError:
         manager_signature = ''
 
+    vacation_type1 = Vacation.objects.filter(employee = vacation.employee, vacation_type = '0')
+    balance1 = 0
+    for vacation in vacation_type1:
+        balance1 += vacation.duration
+
+    vacation_type2 = Vacation.objects.filter(employee = vacation.employee, vacation_type = '1')
+    balance2 = 0
+    for vacation in vacation_type2:
+        balance2 += vacation.duration
+    
+    remaining_vacation_balance1 = vacation.employee.vacation1 - balance1
+    remaining_vacation_balance2 = 7 - balance2
+
     data = {
         "vacation": vacation,
+        "Accrued_vacation_balance1": balance1,
+        "Accrued_vacation_balance2": balance2,
+        "remaining_vacation_balance1": remaining_vacation_balance1,
+        "remaining_vacation_balance2": remaining_vacation_balance2,
+        "vacation_balance2": balance2,
         "department": vacation.employee.department.name,
         "logo": logo, 
         "manager_signature": manager_signature, 

@@ -64,7 +64,7 @@
                                 <td>{{manager.employee.name}}</td>
                                 <td>
                                     <a href="{% url 'editdepartment' department.department_id %}" class="btn save-btn ms-2">تعديل</a>
-                                    <!-- <a href="#" class="btn save-btn ms-2">ازاله</a> -->
+                                    <a href="{% url 'removedepartment' department.department_id %}" class="btn save-btn ms-2">ازالة المدير</a>
                                 </td>
                             </tr>
                             {% endfor %}
