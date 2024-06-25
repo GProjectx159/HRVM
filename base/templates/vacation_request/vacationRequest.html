@@ -12,90 +12,90 @@
         </div>
         <section class="profile container p-3 pt-4" style="max-width: 900px;">
             <div style="margin: 0px 10px;">
-                    <div class="col-md-6" style="display: flex; align-items: center; justify-content: right; width: 100%;">
-                        <h2 style="display: inline; margin: 0px;">إجازة جديدة</h2>
-                    </div>
-                    <div class="Details pt-5 fs-7 ">
-                        {% if error_message %}
-                            <div class="alert alert-danger" role="alert">
-                                {{ error_message }}
+                <div class="col-md-6" style="display: flex; align-items: center; justify-content: right; width: 100%;">
+                    <h2 style="display: inline; margin: 0px;">إجازة جديدة</h2>
+                </div>
+                <div class="Details pt-5 fs-7 ">
+                    {% if error_message %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error_message }}
+                        </div>
+                    {% endif %}
+                    <form method="POST" action="{% url "vacationRequest" %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="vacation_type">نوع الإجازة:</label>
+                                <select id="vacation_type" name="vacation_type" class="form-control" required onchange="calculateVacationDaysAndValidate()"> 
+                                    <option value="" selected disabled>اختر...</option>
+                                    <option value="0">إجازة اعتيادية ({{ user.vacation1 }}/{{ user.vacation1_balance }})</option>
+                                    <option value="1">إجازة عارضة (7/{{ user.vacation2_balance }})</option>
+                                    <option value="2">إجازة مرضية (10/{{ user.vacation3_balance }})</option>
+                                    {% if user.gender == 'Female' %}
+                                        <option value="3">إجازة وضع (2/{{ user.vacation4_balance }})</option>
+                                    {% endif %}
+                                    <option value="4">إذن</option>
+                                    <option value="5">مأمورية</option>
+                                </select>
                             </div>
-                        {% endif %}
-                        <form method="POST" action="{% url "vacationRequest" %}" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="vacation_type">نوع الإجازة:</label>
-                                    <select id="vacation_type" name="vacation_type" class="form-control" required onchange="calculateVacationDays()"> 
-                                        <option value="" selected disabled>اختر...</option>
-                                        <option value="0">إجازة اعتيادية ({{ user.vacation1 }}/{{ user.vacation1_balance }})</option>
-                                        <option value="1">إجازة عارضة (7/{{ user.vacation2_balance }})</option>
-                                        <option value="2">إجازة مرضية (10/{{ user.vacation3_balance }})</option>
-                                        {% if user.gender == 'Female' %}
-                                            <option value="3">إجازة وضع (2/{{ user.vacation4_balance }})</option>
-                                        {% endif %}
-                                        <option value="4">إذن</option>
-                                        <option value="5">مأمورية</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="substitute_employee">الموظف البديل:</label>
-                                    <select required id="substitute_employee" name="substitute_employee" class="form-control">
-                                        <option value="" selected disabled>اختر...</option>
-                                        {% for alt_user in allowed_user %}
-                                            <option value="{{ alt_user.id }}">{{ alt_user.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="substitute_employee">الموظف البديل:</label>
+                                <select required id="substitute_employee" name="substitute_employee" class="form-control">
+                                    <option value="" selected disabled>اختر...</option>
+                                    {% for alt_user in allowed_user %}
+                                        <option value="{{ alt_user.id }}">{{ alt_user.name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
-        
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="start_date">من تاريخ:</label>
-                                    <input required type="date" name="start_date" id="start_date" class="input_profile" onchange="calculateVacationDays()">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="end_date">إلى تاريخ:</label>
-                                    <input required type="date" name="end_date" id="end_date" class="input_profile" onchange="calculateVacationDays()">
-                                </div>
+                        </div>
+    
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="start_date">من تاريخ:</label>
+                                <input required type="date" name="start_date" id="start_date" class="input_profile" onchange="calculateVacationDaysAndValidate()">
                             </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label>الأيام المطلوبة:</label>
-                                    <label id="vacation_days">0 يوم</label>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="end_date">إلى تاريخ:</label>
+                                <input required type="date" name="end_date" id="end_date" class="input_profile" onchange="calculateVacationDaysAndValidate()">
                             </div>
-        
-                            <div class="row" style="display: none;">
-                                <div class="mb-3" >
-                                    <label for="attachment">مرفق:</label>
-                                    <input type="file" name="attachment" id="attachment" class="input_profile" accept="image/*" required> <!-- أضف required هنا -->
-                                    
-                                </div>
-                                <div id="imagePreview" style="display: none;">
-                                    <img class="mb-3" id="preview" src="#" alt="صورة المرفق" style="max-width: 200px;">
-                                </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>الأيام المطلوبة:</label>
+                                <label id="vacation_days">0 يوم</label>
                             </div>
-        
-                            <div class="row">
-                                <div>
-                                    <label for="description">الوصف:</label>
-                                    <textarea name="description" id="description" placeholder="أضف وصفًا..." class="input_profile"></textarea>
-                                </div>
+                        </div>
+    
+                        <div class="row" style="display: none;">
+                            <div class="mb-3" >
+                                <label for="attachment">مرفق:</label>
+                                <input type="file" name="attachment" id="attachment" class="input_profile" accept="image/*" required> <!-- أضف required هنا -->
+                                
                             </div>
-                            
-                            <hr>
-                            <div class="row" style="justify-content: center;">
-                                <div class="col-md-3 mb-3">
-                                    <button type="submit" class="btn save-btn mt-2" id="submitButton" style="margin:auto; width: 100%;">إرسال</button>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <a href="{% url "requestView" %}" class="btn cancel-btn mt-2" id="close" style="margin:auto; width: 100%;">إلغاء</a>
-                                </div>
+                            <div id="imagePreview" style="display: none;">
+                                <img class="mb-3" id="preview" src="#" alt="صورة المرفق" style="max-width: 200px;">
                             </div>
-                        </form>
-                    </div>
+                        </div>
+    
+                        <div class="row">
+                            <div>
+                                <label for="description">الوصف:</label>
+                                <textarea name="description" id="description" placeholder="أضف وصفًا..." class="input_profile"></textarea>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        <div class="row" style="justify-content: center;">
+                            <div class="col-md-3 mb-3">
+                                <button type="submit" class="btn save-btn mt-2" id="submitButton" style="margin:auto; width: 100%;">إرسال</button>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{% url "requestView" %}" class="btn cancel-btn mt-2" id="close" style="margin:auto; width: 100%;">إلغاء</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </section>
     </div>
@@ -104,12 +104,14 @@
 </body>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    let alertShown = false; // Flag to prevent multiple alerts
+
     function calculateVacationDaysAndValidate() {
         var startDate = new Date(document.getElementById("start_date").value);
         var endDate = new Date(document.getElementById("end_date").value);
         
         var timeDifference = endDate.getTime() - startDate.getTime();
-        var daysDifference = (timeDifference / (1000 * 3600 * 24))+1;
+        var daysDifference = (timeDifference / (1000 * 3600 * 24)) + 1;
 
         var selectedOption = $('#vacation_type').val();
         var maxDays = 0;
@@ -128,11 +130,15 @@
 
         var submitButton = document.getElementById("submitButton");
 
-        if (daysDifference > maxDays || daysDifference == 0 || daysDifference < 0) {
-            alert('لقد تجاوزت العدد المسموح به أو لم تقم بتحديد أيام.');
+        if (daysDifference > maxDays || daysDifference == 0 || daysDifference < 0 || (selectedOption == '1' && daysDifference > 2)) {
+            if (!alertShown) {
+                alert('لقد تجاوزت العدد المسموح به أو لم تقم بتحديد أيام.');
+                alertShown = true; // Set flag to true after showing alert
+            }
             document.getElementById("vacation_days").textContent = 0 + " يوم";
             submitButton.disabled = true; // تعطيل زر الإرسال
         } else {
+            alertShown = false; // Reset flag if validation passes
             submitButton.disabled = false; // تمكين زر الإرسال
         }
 
@@ -143,7 +149,6 @@
             $('#attachment').prop('required', false);
         }
     }
-
 
     $(document).ready(function(){
         $('#vacation_type').change(function(){

@@ -94,7 +94,7 @@
                         <input type="text" required id="phone" class="input_sign " placeholder="يرجى ادخال رقم الهاتف" value="{{ form.phone.value|default_if_none:'' }}" min="11" max="11" name="phone">
                         {% if error_messages and 'phone' in error_messages %}
                         {% for error in error_messages.phone %}
-                        <p style="color: transparent; margin: 0px;">{{ error }}</p>
+                        <p style="color: #BF3131; margin: 0px;">{{ error }}</p>
                         {% endfor %}
                         {% endif %}
                     </div>

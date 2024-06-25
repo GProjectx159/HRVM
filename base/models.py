@@ -14,7 +14,7 @@ class User(AbstractUser):
     employee_identity = models.BigIntegerField(unique=True,default=0)
     name = models.CharField(max_length=100, default='', blank=True, null=True)
     email = models.EmailField(unique=True, null=True)
-    phone = models.CharField(max_length=50, blank=True, null=True)
+    phone = models.CharField(unique=True, max_length=50, blank=True, null=True)
     startwork_date = models.DateTimeField(blank=True, null=True)
     birthdate = models.DateField(blank=True, null=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
@@ -27,7 +27,7 @@ class User(AbstractUser):
     vacation3_balance = models.IntegerField(default=10) #اجازه مرضيه
     vacation4_balance = models.IntegerField(default=2) #اجازه وضع
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
 
     def __str__(self):

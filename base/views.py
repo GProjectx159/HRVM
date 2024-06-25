@@ -48,16 +48,16 @@ def loginUser(request):
 
     error_message = None
     if request.method == 'POST':
-        email = request.POST.get('email').lower()
+        phone = request.POST.get('phone').lower()
         password = request.POST.get('password')
 
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(phone=phone)
         except User.DoesNotExist:
             user = None
 
         if user is not None and user.is_active: 
-            user = authenticate(request, email=email, password=password)
+            user = authenticate(request, phone=phone, password=password)
 
             if user is not None:
                 auth_login(request, user)
@@ -66,7 +66,7 @@ def loginUser(request):
                 else:
                     return redirect('user-profile', username = request.user.username)
             else:
-                error_message = 'اسم المستخدم او كلمة المرور خطأ'
+                error_message = 'رقم التليفون او كلمة المرور خطأ'
                 submitted_data = request.POST.copy() 
                 form = MyUserCreationForm(submitted_data)
 
@@ -76,7 +76,7 @@ def loginUser(request):
             form = MyUserCreationForm(submitted_data)
 
         else:
-            error_message = 'اسم المستخدم او كلمة المرور خطأ'
+            error_message = 'رقم التليفون او كلمة المرور خطأ'
             submitted_data = request.POST.copy() 
             form = MyUserCreationForm(submitted_data)
 
@@ -252,8 +252,28 @@ def acceptUsers(request, username):
 @login_required(login_url='login')
 def deleteUser(request, username):
     user = User.objects.get(username=username)
-    user.delete()
-    return usersRequests(request)
+    try:
+        context = {
+            'user': user,
+            'protocol': 'http',
+            'domain': request.get_host(),
+        }
+        html_message = render_to_string('notifications/rejectUser.html', context)
+        plain_message = strip_tags(html_message)
+        send_mail(
+            'Request Accepted',
+            plain_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            html_message=html_message,
+        )
+        user.delete()
+        return usersRequests(request)
+    
+    except Vacation.DoesNotExist:
+        return render(request, 'error_page/404.html')
+
+
 
 @login_required(login_url='login')
 def updateUser(request, username):
@@ -261,7 +281,27 @@ def updateUser(request, username):
     user.is_active = True
     user.save()
     
-    return usersRequests(request)
+    try:
+        context = {
+            'user': user,
+            'protocol': 'http',
+            'domain': request.get_host(),
+        }
+        html_message = render_to_string('notifications/acceptUser.html', context)
+        plain_message = strip_tags(html_message)
+        send_mail(
+            'Request Accepted',
+            plain_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            html_message=html_message,
+        )
+        return usersRequests(request)
+    
+    except Vacation.DoesNotExist:
+        return render(request, 'error_page/404.html')
+
+
 
 @login_required(login_url='login')
 def manageDepartment(request):
@@ -627,58 +667,58 @@ def pdf_report_create(request, request_number):
     except FileNotFoundError:
         logo = ''
 
-    vacation = Vacation.objects.get(request_number=request_number)
-
-    manager_signature_path = os.path.join(settings.MEDIA_ROOT, f'{vacation.manager_signature}') 
     try:
-        with open(manager_signature_path, 'rb') as image_file:
-            image_data = image_file.read()
-        manager_signature = base64.b64encode(image_data).decode('utf-8')
-    except FileNotFoundError:
-        manager_signature = ''
+        # Fetch the vacation request
+        vacation = Vacation.objects.get(request_number=request_number)
 
-    vacation_type1 = Vacation.objects.filter(employee = vacation.employee, vacation_type = '0')
-    balance1 = 0
-    for vacation in vacation_type1:
-        balance1 += vacation.duration
+        # Calculate accrued balances until request_date
+        balance1 = Vacation.objects.filter(employee=vacation.employee, vacation_type='0', status=2, request_date__lte=vacation.request_date).aggregate(Sum('duration'))['duration__sum'] or 0
+        balance2 = Vacation.objects.filter(employee=vacation.employee, vacation_type='1', status=2, request_date__lte=vacation.request_date).aggregate(Sum('duration'))['duration__sum'] or 0
 
-    vacation_type2 = Vacation.objects.filter(employee = vacation.employee, vacation_type = '1')
-    balance2 = 0
-    for vacation in vacation_type2:
-        balance2 += vacation.duration
-    
-    remaining_vacation_balance1 = vacation.employee.vacation1 - balance1
-    remaining_vacation_balance2 = 7 - balance2
+        remaining_vacation_balance1 = vacation.employee.vacation1 - balance1
+        remaining_vacation_balance2 = 7 - balance2
 
-    data = {
-        "vacation": vacation,
-        "Accrued_vacation_balance1": balance1,
-        "Accrued_vacation_balance2": balance2,
-        "remaining_vacation_balance1": remaining_vacation_balance1,
-        "remaining_vacation_balance2": remaining_vacation_balance2,
-        "vacation_balance2": balance2,
-        "department": vacation.employee.department.name,
-        "logo": logo, 
-        "manager_signature": manager_signature, 
-    }
+        manager_signature_path = os.path.join(settings.MEDIA_ROOT, f'{vacation.manager_signature}') 
+        try:
+            with open(manager_signature_path, 'rb') as image_file:
+                image_data = image_file.read()
+            manager_signature = base64.b64encode(image_data).decode('utf-8')
+        except FileNotFoundError:
+            manager_signature = ''
 
-    context = {'data': data}
+        data = {
+            "vacation": vacation,
+            "Accrued_vacation_balance1": balance1,
+            "Accrued_vacation_balance2": balance2,
+            "remaining_vacation_balance1": remaining_vacation_balance1,
+            "remaining_vacation_balance2": remaining_vacation_balance2,
+            "vacation_balance2": balance2,
+            "department": vacation.employee.department.name,
+            "logo": logo, 
+            "manager_signature": manager_signature, 
+        }
 
-    html_string = render_to_string(template_path, context)
+        context = {'data': data}
 
-    try:
-        client = pdfcrowd.HtmlToPdfClient('eslamt147', 'f9469b33bd059981cf203ba75288c057')
-        
-        client.convertStringToFile(html_string, 'Vacation_report.pdf')
+        html_string = render_to_string(template_path, context)
 
-        with open('Vacation_report.pdf', 'rb') as pdf_file:
-            pdf = pdf_file.read()
-        
-        response = HttpResponse(pdf, content_type='application/pdf')
-        return response
+        try:
+            client = pdfcrowd.HtmlToPdfClient('NCTU1', '6d9a3535341dbe3df3764aca757cdef7')
+            
+            client.convertStringToFile(html_string, 'Vacation_report.pdf')
 
-    except pdfcrowd.Error as why:
-        return HttpResponse("PDF conversion failed: {}".format(why)) 
+            with open('Vacation_report.pdf', 'rb') as pdf_file:
+                pdf = pdf_file.read()
+            
+            response = HttpResponse(pdf, content_type='application/pdf')
+            return response
+
+        except pdfcrowd.Error as why:
+            return HttpResponse("PDF conversion failed: {}".format(why)) 
+
+    except Vacation.DoesNotExist:
+        return HttpResponse("Vacation request does not exist")
+
 
     
 from datetime import timedelta
