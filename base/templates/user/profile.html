@@ -98,11 +98,11 @@
                     <button type="submit" class="btn save-btn mt-2" id="saveChangesButton" style="display: none; margin:auto;">حفظ التغييرات</button>
                 </form>
                 <br>
+                {% if user.is_superuser %} 
                 <hr>
                 <h3>• اخرى</h3>
                 <div>
                     <br>
-                    {% if user.is_superuser %} 
                         <button type="button" class="btn save-btn mt-2" id="showImageBtn" style="width: 20%;" >تغيير توقيع المدير</button>
                         
                         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -133,9 +133,9 @@
                                     
                         
                     
+                        <br>
+                    </div>
                     {% endif %}
-                    <br>
-                </div>
                 <hr>
                 <br>
                 <br>

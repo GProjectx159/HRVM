@@ -28,6 +28,7 @@ from datetime import datetime, timedelta
 import os
 import base64
 import pdfcrowd
+import uuid
 
 def error_404_view(request, exception):
     return render(request, 'error_page/404.html')
@@ -57,21 +58,26 @@ def loginUser(request):
             user = None
 
         if user is not None and user.is_active: 
-            user = authenticate(request, phone=phone, password=password)
-
-            if user is not None:
-                auth_login(request, user)
-                if user.is_superuser:
-                    return redirect('AcceptRequest')
-                else:
-                    return redirect('user-profile', username = request.user.username)
-            else:
-                error_message = 'رقم التليفون او كلمة المرور خطأ'
+            if user is not None and not user.is_verified:
+                error_message = 'حسابك لم ينشط بعد تاكد من البريد الالكتروني'
                 submitted_data = request.POST.copy() 
                 form = MyUserCreationForm(submitted_data)
+            else:
+                user = authenticate(request, phone=phone, password=password)
+
+                if user is not None:
+                    auth_login(request, user)
+                    if user.is_superuser:
+                        return redirect('AcceptRequest')
+                    else:
+                        return redirect('user-profile', username = request.user.username)
+                else:
+                    error_message = 'رقم التليفون او كلمة المرور خطأ'
+                    submitted_data = request.POST.copy() 
+                    form = MyUserCreationForm(submitted_data)
 
         elif user is not None and not user.is_active:
-            error_message = 'حسابك لم ينشط بعد اتصل بالدعم'
+            error_message = 'حسابك يتم مراجعتة اتصل بالدعم'
             submitted_data = request.POST.copy() 
             form = MyUserCreationForm(submitted_data)
 
@@ -113,6 +119,7 @@ class CustomPasswordResetView(PasswordResetView):
 
         return HttpResponseRedirect(self.get_success_url())
     
+    
 def signup(request):
     error_messages = None
     
@@ -142,6 +149,8 @@ def signup(request):
             user.birthdate = info['date_of_birth']
             user.gender = info['gender']
             user.save()
+            token=str(uuid.uuid4())
+            send_verification_email(user, token)
             return redirect("login")
         else:
             error_messages = form.errors
@@ -151,6 +160,18 @@ def signup(request):
         form = MyUserCreationForm()
     
     return render(request, "registration/signup.html", {"form": form, "error_messages": error_messages})
+
+def send_verification_email(user, token):
+    subject = 'Verify your email address'
+    message = f'Please click the link to verify your email: http://127.0.0.1:8000/verify/{token}/{user.id}'
+    send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email], fail_silently=False)
+
+def verify_email(request, token, userid):
+    user = User.objects.get(id=userid)
+    user.is_verified = True
+    user.save()
+    return redirect('login')
+
 
 
 fake_national_id_message = 'This ID Not Valid'
@@ -655,6 +676,20 @@ def reject_vacation(request, request_number):
         return redirect('AcceptRequest')
     except Vacation.DoesNotExist:
         return render(request, 'error_page/404.html')
+    
+from io import BytesIO
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
+
+def render_to_pdf(template_src, context_dict):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
 
 def pdf_report_create(request, request_number):
     template_path = 'other_temp/pdf_template.html'
@@ -672,8 +707,8 @@ def pdf_report_create(request, request_number):
         vacation = Vacation.objects.get(request_number=request_number)
 
         # Calculate accrued balances until request_date
-        balance1 = Vacation.objects.filter(employee=vacation.employee, vacation_type='0', status=2, request_date__lte=vacation.request_date).aggregate(Sum('duration'))['duration__sum'] or 0
-        balance2 = Vacation.objects.filter(employee=vacation.employee, vacation_type='1', status=2, request_date__lte=vacation.request_date).aggregate(Sum('duration'))['duration__sum'] or 0
+        balance1 = Vacation.objects.filter(employee=vacation.employee, vacation_type='0', status=2, request_number__lte=vacation.request_number).aggregate(Sum('duration'))['duration__sum'] or 0
+        balance2 = Vacation.objects.filter(employee=vacation.employee, vacation_type='1', status=2, request_number__lte=vacation.request_number).aggregate(Sum('duration'))['duration__sum'] or 0
 
         remaining_vacation_balance1 = vacation.employee.vacation1 - balance1
         remaining_vacation_balance2 = 7 - balance2
