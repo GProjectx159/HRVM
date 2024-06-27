@@ -12,6 +12,7 @@ urlpatterns = [
     path('logout/', views.logoutUser, name='logout'),
 
     path('profile/<str:username>/', views.userprofile, name='user-profile'),
+    path('resetbalance/', views.reset_vacation_balances, name='resetbalance'),
     path('usersRequests/', views.usersRequests, name='usersRequests'),
     path('AcceptUsers/<str:username>/', views.acceptUsers, name='AcceptUsers'),
     path('deleteUser/<str:username>/', views.deleteUser, name='deleteUser'),

@@ -13,7 +13,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1','gproject.pythonanywhere.com','192.168.1.8']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -57,10 +56,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'HRVM.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -68,10 +64,7 @@ DATABASES = {
     }
 }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -89,14 +82,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-
 LANGUAGE_CODE = 'ar-eg'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -106,7 +94,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER ='gprojectx159@gmail.com'
 EMAIL_HOST_PASSWORD ='jhvofwsysrgevpmb'
 
-
 DEFAULT_FROM_EMAIL = 'gprojectx159@gmail.com'
 EMAIL_SUBJECT_PREFIX = '[https://nctu.edu.eg/]'
 
@@ -114,14 +101,7 @@ PASSWORD_RESET_TIMEOUT_DAYS = 1
 PASSWORD_RESET_TIMEOUT = 3600
 PASSWORD_RESET_EMAIL_TEMPLATE_NAME = 'registration/password_reset_email.html'
 
-
-
-
-
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
 STATIC_URL = '/base/static/'
 MEDIA_URL = '/media/'
 
@@ -131,10 +111,5 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'base/static'),
 ]
 
-
-
-
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

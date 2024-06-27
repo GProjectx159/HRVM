@@ -8,6 +8,12 @@
         <div class="container" style="padding: 0px; margin-top: 30px;">
             <div class="d-block text-right">
                 <a class="btn save-btn" href="{% url "requestView" %}">طلب إجازه</a>
+                {% if request.user.department.department_id == 1 and request.user.is_manager %}
+                <form id="resetBalanceForm" method="POST" action="{% url 'resetbalance' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="button" class="btn save-btn" onclick="confirmReset()">اعادة تعيين رصيد الاجازات</button>
+                </form>
+                {% endif %}
             </div>
         </div>
         <section class="profile container p-3 pt-4">
@@ -98,7 +104,7 @@
                     <button type="submit" class="btn save-btn mt-2" id="saveChangesButton" style="display: none; margin:auto;">حفظ التغييرات</button>
                 </form>
                 <br>
-                {% if user.is_superuser %} 
+                {% if user.is_manager %} 
                 <hr>
                 <h3>• اخرى</h3>
                 <div>
@@ -163,6 +169,11 @@
             myModal.show();
         });
     });
+    function confirmReset() {
+        if (confirm("هل أنت متأكد أنك تريد إعادة تعيين رصيد الاجازات؟")) {
+            document.getElementById('resetBalanceForm').submit();
+        }
+    }
 
 </script>
 {% endblock content %}

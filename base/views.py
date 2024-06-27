@@ -67,7 +67,7 @@ def loginUser(request):
 
                 if user is not None:
                     auth_login(request, user)
-                    if user.is_superuser:
+                    if user.is_manager:
                         return redirect('AcceptRequest')
                     else:
                         return redirect('user-profile', username = request.user.username)
@@ -252,13 +252,27 @@ def userprofile(request, username):
     }
     return render(request, "user/profile.html", context)
 
+def reset_vacation_balances(request):
+    if request.method == 'POST':
+        users = User.objects.all()
+        for user in users:
+            vacation1 = user.vacation1
+            user.vacation1_balance = vacation1  # Reset to desired value
+            user.vacation2_balance = 7  # Reset to desired value
+            user.vacation3_balance = 10  # Reset to desired value
+            user.vacation4_balance = 2  # Reset to desired value
+            user.save()
+        return redirect('user-profile', request.user.username)
+    return redirect('user-profile', request.user.username)
+
+
 @login_required(login_url='login')
 def usersRequests(request):
     inactive_users = User.objects.filter(is_active=False)
     context = {
         'inactive_users' : inactive_users,
     }
-    if not request.user.is_superuser:
+    if not request.user.is_manager:
         return render(request, "main_page/home_after.html", context)
     return render(request, "controll/usersRequests.html", context)
 
@@ -366,7 +380,7 @@ def manageDepartment(request):
         )
 
         manager = User.objects.get(id = department_manager_id)
-        manager.is_superuser = True
+        manager.is_manager = True
         manager.save()
 
         DepartmentManager.objects.create(
@@ -376,7 +390,7 @@ def manageDepartment(request):
         return redirect("manageDepartment")
 
     manager_list_ids = DepartmentManager.objects.values_list("employee__id")
-    users = User.objects.filter(is_active = True, is_superuser = False).exclude(id__in=manager_list_ids)
+    users = User.objects.filter(is_active = True, is_manager = False).exclude(id__in=manager_list_ids)
     context = {
         'full_join_result' : full_join_result,
         'users' : users,
@@ -412,7 +426,7 @@ def editdepartment(request, department_id):
         department_manager = DepartmentManager.objects.get(department=curr_department) if DepartmentManager.objects.filter(department=curr_department).exists() else None
         if department_manager != None:
             old_user = User.objects.get(id = department_manager.employee.id)
-            old_user.is_superuser = False
+            old_user.is_manager = False
             old_user.save()
 
         new_manager = User.objects.get(id=new_manager_id)
@@ -428,14 +442,14 @@ def editdepartment(request, department_id):
             department_manager.save()
         
 
-        new_manager.is_superuser = True
+        new_manager.is_manager = True
         new_manager.save()
         return redirect("manageDepartment")
 
     department_manager = DepartmentManager.objects.get(department=curr_department) if DepartmentManager.objects.filter(department=curr_department).exists() else None
     
     manager_list_ids = DepartmentManager.objects.values_list("employee__id")
-    users = User.objects.filter(is_active = True, is_superuser = False, department = curr_department).exclude(id__in=manager_list_ids)
+    users = User.objects.filter(is_active = True, is_manager = False, department = curr_department).exclude(id__in=manager_list_ids)
     context = {
         'curr_department' : curr_department,
         'department_manager' : department_manager,
@@ -449,7 +463,7 @@ def removedepartment(request, department_id):
 
     department_manager = DepartmentManager.objects.get(department = department_id)
     old_user = User.objects.get(id = department_manager.employee.id)
-    old_user.is_superuser = False
+    old_user.is_manager = False
     old_user.save()
 
     department_manager.delete()
@@ -463,7 +477,7 @@ def requestView(request):
 
     if request.user.department.department_id == 1:
         vacations = Vacation.objects.filter(status=2).order_by('-request_number')
-    elif request.user.is_superuser:
+    elif request.user.is_manager:
         vacations = Vacation.objects.filter(employee__department__department_id=request.user.department.department_id, status=2).order_by('-request_number')
     else:
         vacations = Vacation.objects.filter(employee=request.user).order_by('-request_number')
@@ -505,7 +519,7 @@ def AcceptRequest(request):
     
 def vacationRequest(request):
     user = User.objects.get(username=request.user.username)
-    allowed_user = User.objects.filter(department=user.department, is_superuser = False).exclude(pk=user.pk)
+    allowed_user = User.objects.filter(department=user.department, is_manager = False).exclude(pk=user.pk)
     error_message = None
 
     
@@ -903,8 +917,8 @@ def Rday(request):
     if request.method == 'POST':
         selected_date = datetime.strptime(request.POST.get('selected_date'), '%Y-%m-%d').date()
         # البحث عن الأيام التي تتزامن مع تاريخ المحدد
-        users_vacations = Vacation.objects.filter(start_date__lte=selected_date, end_date__gte=selected_date, employee__is_superuser=False)
-        manager_vacations = Vacation.objects.filter(start_date__lte=selected_date, end_date__gte=selected_date, employee__is_superuser=True)
+        users_vacations = Vacation.objects.filter(start_date__lte=selected_date, end_date__gte=selected_date, employee__is_manager=False)
+        manager_vacations = Vacation.objects.filter(start_date__lte=selected_date, end_date__gte=selected_date, employee__is_manager=True)
     else:
         users_vacation = manager_vacation = None
     

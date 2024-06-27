@@ -12,6 +12,7 @@ class Department(models.Model):
 class User(AbstractUser):
     is_active = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
+    is_manager = models.BooleanField(default=False)
     employee_identity = models.BigIntegerField(unique=True,default=0)
     name = models.CharField(max_length=100, default='', blank=True, null=True)
     email = models.EmailField(unique=True, null=True)
