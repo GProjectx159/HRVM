@@ -51,11 +51,8 @@
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">{{ vacation.employee }}</a></td>
-                                <td>{{ vacation.employee }}</td>
-                                <td>{{vacation.get_vacation_type_display}}</td>
-                                {% if department.department_id == 1 %}
                                 <td>{{vacation.employee.department}}</td>
-                                {% endif %}
+                                <td>{{vacation.get_vacation_type_display}}</td>
                                 <td>{{vacation.request_date|date:'d/m/Y'}}</td>
                                 <td>{{vacation.start_date|date:'d/m/Y'}}</td>
                                 <td>{{vacation.end_date|date:'d/m/Y'}}</td>
@@ -96,11 +93,8 @@
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">{{ vacation.employee }}</a></td>
-                                <td>{{ vacation.employee }}</td>
-                                <td>{{vacation.get_vacation_type_display}}</td>
-                                {% if department.department_id == 1 %}
                                 <td>{{vacation.employee.department}}</td>
-                                {% endif %}
+                                <td>{{vacation.get_vacation_type_display}}</td>
                                 <td>{{vacation.request_date|date:'d/m/Y'}}</td>
                                 <td>{{vacation.start_date|date:'d/m/Y'}}</td>
                                 <td>{{vacation.end_date|date:'d/m/Y'}}</td>
