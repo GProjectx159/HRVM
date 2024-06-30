@@ -57,10 +57,10 @@ def loginUser(request):
         except User.DoesNotExist:
             user = None
 
-        if user is not None and user.is_active: 
+        if user is not None and user.is_active:
             if user is not None and not user.is_verified:
                 error_message = 'حسابك لم ينشط بعد تاكد من البريد الالكتروني'
-                submitted_data = request.POST.copy() 
+                submitted_data = request.POST.copy()
                 form = MyUserCreationForm(submitted_data)
             else:
                 user = authenticate(request, phone=phone, password=password)
@@ -73,17 +73,17 @@ def loginUser(request):
                         return redirect('user-profile', username = request.user.username)
                 else:
                     error_message = 'رقم التليفون او كلمة المرور خطأ'
-                    submitted_data = request.POST.copy() 
+                    submitted_data = request.POST.copy()
                     form = MyUserCreationForm(submitted_data)
 
         elif user is not None and not user.is_active:
             error_message = 'حسابك يتم مراجعتة اتصل بالدعم'
-            submitted_data = request.POST.copy() 
+            submitted_data = request.POST.copy()
             form = MyUserCreationForm(submitted_data)
 
         else:
             error_message = 'رقم التليفون او كلمة المرور خطأ'
-            submitted_data = request.POST.copy() 
+            submitted_data = request.POST.copy()
             form = MyUserCreationForm(submitted_data)
 
     return render(request, 'registration/login.html', {'form':form , 'error_message': error_message})
@@ -118,34 +118,34 @@ class CustomPasswordResetView(PasswordResetView):
             return render(self.request, 'registration/reset_password.html', {'message_error': message_error, 'email': email})
 
         return HttpResponseRedirect(self.get_success_url())
-    
-    
+
+
 def signup(request):
     error_messages = None
-    
+
     if request.method == "POST":
         form = MyUserCreationForm(request.POST)
         if form.is_valid():
             Name = form.cleaned_data.get('name')
-            
+
             if len(Name.split()) != 4:
                 error_messages = {'name': ['يرجى إدخال الاسم الرباعي.']}
                 form = MyUserCreationForm(request.POST)
                 return render(request, "registration/signup.html", {"form": form, "error_messages": error_messages})
-            
+
             email = form.cleaned_data.get('email')
-            
+
             try:
                 validate_email(email)
             except ValidationError:
                 error_messages = {'email': ['يرجى إدخال بريد إلكتروني صحيح.']}
                 form = MyUserCreationForm(request.POST)
                 return render(request, "registration/signup.html", {"form": form, "error_messages": error_messages})
-            
+
             user = form.save(commit=False)
             employee_identity = form.cleaned_data.get('employee_identity')
             info = extract_info_from_national_id(employee_identity)
-         
+
             user.birthdate = info['date_of_birth']
             user.gender = info['gender']
             user.save()
@@ -158,12 +158,12 @@ def signup(request):
             form = MyUserCreationForm(submitted_data)
     else:
         form = MyUserCreationForm()
-    
+
     return render(request, "registration/signup.html", {"form": form, "error_messages": error_messages})
 
 def send_verification_email(user, token):
     subject = 'Verify your email address'
-    message = f'Please click the link to verify your email: http://127.0.0.1:8000/verify/{token}/{user.id}'
+    message = f'Please click the link to verify your email: https://gproject.pythonanywhere.com/verify/{token}/{user.id}'
     send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email], fail_silently=False)
 
 def verify_email(request, token, userid):
@@ -231,7 +231,7 @@ def userprofile(request, username):
         user.address = request.POST.get('address')
         user.phone = request.POST.get('phone')
         user.save()
-        
+
         if 'newSignature' in request.FILES:
             try:
                 manager = DepartmentManager.objects.get(department = user.department.department_id)
@@ -245,7 +245,7 @@ def userprofile(request, username):
         manager = DepartmentManager.objects.get(department = user.department.department_id)
     except DepartmentManager.DoesNotExist:
         manager = None
-        
+
     context = {
         'user': user,
         'manager': manager,
@@ -304,7 +304,7 @@ def deleteUser(request, username):
         )
         user.delete()
         return usersRequests(request)
-    
+
     except Vacation.DoesNotExist:
         return render(request, 'error_page/404.html')
 
@@ -315,7 +315,7 @@ def updateUser(request, username):
     user = User.objects.get(username=username)
     user.is_active = True
     user.save()
-    
+
     try:
         context = {
             'user': user,
@@ -332,7 +332,7 @@ def updateUser(request, username):
             html_message=html_message,
         )
         return usersRequests(request)
-    
+
     except Vacation.DoesNotExist:
         return render(request, 'error_page/404.html')
 
@@ -395,7 +395,7 @@ def manageDepartment(request):
         'full_join_result' : full_join_result,
         'users' : users,
     }
-    
+
     return render(request, "controll/manageDepartment.html", context)
 
 
@@ -409,10 +409,10 @@ def editdepartment(request, department_id):
                 get the name
                 update the manager in DepartmentManager
                 update the departmen name in departments
-            
+
             - if not exists
                 create a new one in departmentManager
-                with new employee and new 
+                with new employee and new
     """
     department_manager = None
 
@@ -433,28 +433,28 @@ def editdepartment(request, department_id):
         if DepartmentManager.objects.filter(department=curr_department).exists():
             department_manager = DepartmentManager.objects.filter(department=curr_department)
             department_manager.update(employee = new_manager)
-            
+
         else:
             department_manager = DepartmentManager.objects.create(
                 employee = new_manager,
                 department = curr_department
             )
             department_manager.save()
-        
+
 
         new_manager.is_manager = True
         new_manager.save()
         return redirect("manageDepartment")
 
     department_manager = DepartmentManager.objects.get(department=curr_department) if DepartmentManager.objects.filter(department=curr_department).exists() else None
-    
+
     manager_list_ids = DepartmentManager.objects.values_list("employee__id")
     users = User.objects.filter(is_active = True, is_manager = False, department = curr_department).exclude(id__in=manager_list_ids)
     context = {
         'curr_department' : curr_department,
         'department_manager' : department_manager,
         'users' : users,
-        
+
     }
 
     return render(request, "controll/editdepartment.html", context)
@@ -484,7 +484,7 @@ def requestView(request):
 
     if q:
         vacations = vacations.filter(status=q)
-    
+
     if search:
         vacations = vacations.filter(
             Q(employee__name__icontains=search) |
@@ -516,25 +516,25 @@ def AcceptRequest(request):
     }
     return render(request, "vacation_request/AcceptRequest.html", context)
 
-    
+
 def vacationRequest(request):
     user = User.objects.get(username=request.user.username)
     allowed_user = User.objects.filter(department=user.department, is_manager = False).exclude(pk=user.pk)
     error_message = None
 
-    
+
     difference = datetime.now().date() - user.startwork_date.date()
-    
-    if difference.days >= 180:  
+
+    if difference.days >= 180:
         if user.vacation1 == 0:
             user.vacation1 = 15
-            user.vacation1_balance += 15  
+            user.vacation1_balance += 15
             user.save()
 
-    if difference.days >= 365:  
+    if difference.days >= 365:
         if user.vacation1 == 15:
             user.vacation1 = 21
-            user.vacation1_balance += 6  
+            user.vacation1_balance += 6
             user.save()
 
     if request.method == 'POST':
@@ -543,7 +543,7 @@ def vacationRequest(request):
         end_date_str = request.POST.get('end_date')
         description = request.POST.get('description')
         attachment = request.FILES.get('attachment')
-        substitute_employee = request.POST.get('substitute_employee')  
+        substitute_employee = request.POST.get('substitute_employee')
 
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
@@ -589,7 +589,7 @@ def vacationRequest(request):
                 user.vacation3_balance -= duration
             elif vacation_type == '3':
                 user.vacation4_balance -= 1
-                
+
             user.save()
 
             return redirect('requestView')
@@ -605,7 +605,7 @@ def vacationRequest(request):
 
 def showRequest(request, pk):
     vacation = Vacation.objects.get(request_number=pk)
-    
+
     context = {
         'vacation': vacation,
     }
@@ -613,7 +613,7 @@ def showRequest(request, pk):
 
 def showMyRequest(request, pk):
     vacation = Vacation.objects.get(request_number=pk)
-    
+
     context = {
         'vacation': vacation,
     }
@@ -622,7 +622,7 @@ def showMyRequest(request, pk):
 def approve_vacation(request, request_number):
     try:
         vacation = Vacation.objects.get(request_number=request_number)
-        vacation.status = 2  
+        vacation.status = 2
         manager_signature = DepartmentManager.objects.get(department=vacation.employee.department).signature
         vacation.manager_signature = manager_signature
         vacation.save()
@@ -643,7 +643,7 @@ def approve_vacation(request, request_number):
             html_message=html_message,
         )
         return redirect('AcceptRequest')
-    
+
     except Vacation.DoesNotExist:
         return render(request, 'error_page/404.html')
 
@@ -655,7 +655,7 @@ def reject_vacation(request, request_number):
         vacation.save()
 
         user = User.objects.get(id=vacation.employee.id)
-        
+
         vacation_type = vacation.vacation_type
         duration = vacation.duration
 
@@ -690,7 +690,10 @@ def reject_vacation(request, request_number):
         return redirect('AcceptRequest')
     except Vacation.DoesNotExist:
         return render(request, 'error_page/404.html')
-    
+
+
+from django.db.models import Sum
+from weasyprint import HTML
 
 def pdf_report_create(request, request_number):
     template_path = 'other_temp/pdf_template.html'
@@ -714,13 +717,15 @@ def pdf_report_create(request, request_number):
         remaining_vacation_balance1 = vacation.employee.vacation1 - balance1
         remaining_vacation_balance2 = 7 - balance2
 
-        manager_signature_path = os.path.join(settings.MEDIA_ROOT, f'{vacation.manager_signature}') 
+        manager_signature_path = os.path.join(settings.MEDIA_ROOT, f'{vacation.manager_signature}')
         try:
             with open(manager_signature_path, 'rb') as image_file:
                 image_data = image_file.read()
             manager_signature = base64.b64encode(image_data).decode('utf-8')
         except FileNotFoundError:
             manager_signature = ''
+        today_date = datetime.today().strftime('%d/%m/%Y')
+
 
         data = {
             "vacation": vacation,
@@ -730,8 +735,9 @@ def pdf_report_create(request, request_number):
             "remaining_vacation_balance2": remaining_vacation_balance2,
             "vacation_balance2": balance2,
             "department": vacation.employee.department.name,
-            "logo": logo, 
-            "manager_signature": manager_signature, 
+            "logo": logo,
+            "manager_signature": manager_signature,
+            "today_date": today_date,
         }
 
         context = {'data': data}
@@ -739,25 +745,21 @@ def pdf_report_create(request, request_number):
         html_string = render_to_string(template_path, context)
 
         try:
-            client = pdfcrowd.HtmlToPdfClient('NCTU1', '6d9a3535341dbe3df3764aca757cdef7')
-            
-            client.convertStringToFile(html_string, 'Vacation_report.pdf')
+            html = HTML(string=html_string)
+            pdf_file = html.write_pdf()
 
-            with open('Vacation_report.pdf', 'rb') as pdf_file:
-                pdf = pdf_file.read()
-            
-            response = HttpResponse(pdf, content_type='application/pdf')
+            response = HttpResponse(pdf_file, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{vacation.request_number}.pdf"'
             return response
 
-        except pdfcrowd.Error as why:
-            return HttpResponse("PDF conversion failed: {}".format(why)) 
+        except Exception as e:
+            return HttpResponse(f"PDF conversion failed: {str(e)}")
 
     except Vacation.DoesNotExist:
         return HttpResponse("Vacation request does not exist")
 
 
-    
-from datetime import timedelta
+
 
 context_report = {}  # تحويل context_report إلى متغير عالمي
 
@@ -826,38 +828,41 @@ def pdf_report_department(request, department):
         logo = base64.b64encode(image_data).decode('utf-8')
     except FileNotFoundError:
         logo = ''
-
-    # Check if context_report contains the necessary keys
-    if 'start_date' not in context_report or 'end_date' not in context_report or 'department_id' not in context_report:
-        return HttpResponse("Required data not found in context_report", status=400)
-
-    data = {
-        'department': department,
-        'vacation_data': context_report['vacation_data'],
-        'start_date': context_report['start_date'],
-        "logo": logo, 
-        'end_date': context_report['end_date'],
-    }
-
-    context = {'data': data}
-
-    html_string = render_to_string(template_path, context)
-
+    
     try:
-        client = pdfcrowd.HtmlToPdfClient('eslamt147', 'f9469b33bd059981cf203ba75288c057')
-        client.convertStringToFile(html_string, 'Vacation_report_department.pdf')
+        # Check if context_report contains the necessary keys
+        if 'start_date' not in context_report or 'end_date' not in context_report or 'department_id' not in context_report:
+            return HttpResponse("Required data not found in context_report", status=400)
+    
+        today_date = datetime.today().strftime('%d/%m/%Y')
+    
+        data = {
+            'department': department,
+            'vacation_data': context_report['vacation_data'],
+            'start_date': context_report['start_date'],
+            'logo': logo,
+            'end_date': context_report['end_date'],
+            'today_date': today_date,
+        }
+    
+        context = {'data': data}
+    
+        html_string = render_to_string(template_path, context)
+    
+        try:
+            # Convert the HTML to PDF using WeasyPrint
+            html = HTML(string=html_string)
+            pdf_file = html.write_pdf()
+    
+            response = HttpResponse(pdf_file, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="Vacation_report_department.pdf"'
+            return response
+    
+        except Exception as e:
+                return HttpResponse(f"PDF conversion failed: {str(e)}")
 
-        with open('Vacation_report_department.pdf', 'rb') as pdf_file:
-            pdf = pdf_file.read()
-
-        response = HttpResponse(pdf, content_type='application/pdf')
-        return response
-
-    except pdfcrowd.Error as why:
-        return HttpResponse(f"PDF conversion failed: {why}", status=500)
-
-
-
+    except Vacation.DoesNotExist:
+        return HttpResponse("Vacation request does not exist")
 
 
 
@@ -890,7 +895,7 @@ def Ruser(request, pk):
     else:
         vacations = Vacation.objects.filter(employee__username=pk, status=2)
         total_days = vacations.values('vacation_type').annotate(total_days=Sum('duration'))
-    
+
     context_report = {
         'vacations': vacations,
         'total_days': total_days,
@@ -908,7 +913,7 @@ def Rday(request):
         manager_vacations = Vacation.objects.filter(start_date__lte=selected_date, end_date__gte=selected_date, employee__is_manager=True)
     else:
         users_vacation = manager_vacation = None
-    
+
     context = {
         'users_vacations': users_vacations,
         'manager_vacations': manager_vacations,

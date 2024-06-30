@@ -1,16 +1,29 @@
 <!doctype html>
 <html lang="ar">
-  <head>
-    <meta charset="utf-8">
-    <style>
+<head>
+  <meta charset="UTF-8">
+  <title>Vacation Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+      @page {
+        size: A4; /* حجم الصفحة */
+        margin: 1cm; /* تعيين هوامش 1 سم على كل جانب */
+      }
+      body {
+        margin: 0; /* إزالة هامش الصفحة الافتراضي للجسم */
+        direction: rtl; /* اتجاه النص العربي */
+        font-family: 'IBM Plex Sans Arabic', Arial, Helvetica, sans-serif;
+      }
       .row {
         display: flex;
-        font-size: 18px; 
+        font-size: 16px; 
         font-weight: bold;
         margin-bottom: 15px;
       }
       table {
-        font-size: 18px;
+        font-size: 16px;
         width: 100%;
         border-collapse: collapse;
         margin-top: 25px;
@@ -32,112 +45,107 @@
         width: 100%;
       }
       .grid-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-gap: 20px;
-      direction: rtl;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 20px;
+        direction: rtl;
       }
-
     </style>
-  </head>
-  <body style="margin: 0px; direction: rtl;">
+</head>
+<body>
+  <div style="text-align: center; display: flex; align-items: center; justify-content: space-between;">
+    <div style="width: 290px; border: 1px solid #2e2e2e; height: 100px; font-weight: bold; font-size: 18px;">
+      <p style="margin: 0px; margin-top: 10px;font-size: 16px;">New Cairo University Technology</p>
+      <p style="margin: 5px 0px; font-size: 14px;">Faculty ofindustry & Energy Technology</p>
+      <p style="margin: 0px; font-size: 16px;">Department of Human Resources</p>
+    </div>
+    <img src="data:image/png;base64,{{ data.logo }}" style="width: 100px; height: 100px;">
+    <div style="width: 290px; border: 1px solid #2e2e2e; height: 100px; font-weight: bold; font-size: 20px;">
+      <p style="margin: 0px; margin-top: 5px; font-size: 16px;">جامعة القاهرة الجديدة التكنولوجية</p>
+      <p style="margin: 5px 0px; font-size: 16px;">كلية تكنولوجيا الصناعة</p>
+      <p style="margin: 0px; font-size: 16px;">والطاقه - ادارة الموارد البشرية</p>
+    </div>
+  </div>
+  <hr>
+  <div style="text-align: center;">
+    <h2><u>طلب الاجازة [ {{data.vacation.request_number}} ]</u></h2>
+  </div>
+  <br>
+  <div class="row">
+    <span>ادارة: {{data.vacation.employee.department}}</span>
+  </div>
+  <div class="grid-container">
 
-    <div style="text-align: center; display: flex; align-items: center; justify-content: space-between;" >
-      <!-- Use the base64 string directly in the src attribute -->
-      <div style="width: 290px; border: 1px solid #2e2e2e; height: 100px; font-weight: bold; font-size: 18px;">
-        <p style="margin: 0px; margin-top: 10px;">New Cairo University Technology</p>
-        <p style="margin: 5px 0px; font-size: 16px;">Faculty ofindustry & Energy Technology</p>
-        <p style="margin: 0px;">Department of Human Resources</p>
-      </div>
-      <img src="data:image/png;base64,{{ data.logo }}" width="100px" height="100px">
-      <div style="width: 290px; border: 1px solid #2e2e2e; height: 100px; font-weight: bold; font-size: 20px;">
-        <p style="margin: 0px; margin-top: 10px;">جامعة القاهرة الجديدة التكنولوجية</p>
-        <p style="margin: 5px 0px;">كلية تكنولوجيا الصناعة</p>
-        <p style="margin: 0px;">والطاقه - ادارة الموارد البشرية</p>
-      </div>
-    </div>
-    <hr>
-    <div style="text-align: center;">
-      <h2><u>طلب الاجازة [ {{data.vacation.request_number}} ]</u></h2>
-    </div>
-    <br><br><br>
     <div class="row">
-      <span>ادارة: {{data.vacation.employee.department}}</span>
+      <span>الوظيفه:</span>
     </div>
-    <div class="grid-container">
-      
-  
-      <div class="row">
-        <span>الاسم: {{data.vacation.employee.name}}</span>
-      </div>
-      <div class="row">
-        <span>الوظيفه:</span>
-      </div>
-  
-      <div class="row">
-        <span>مدة الاجازه: {{data.vacation.duration}} ايام</span>
-      </div>
-      <div class="row">
-        <span>نوع الاجازه: {{data.vacation.get_vacation_type_display}}</span>
-      </div>
-  
-      <div class="row">
-        <span>من: {{data.vacation.start_date|date:'d/m/Y'}}</span>
-      </div>
-      <div class="row">
-        <span>الى: {{data.vacation.end_date|date:'d/m/Y'}}</span>
-      </div>
-      
-      
-      <div class="row" style="margin-top: 15px;">
-        <span>تحريراً في: {{data.vacation.request_date|date:'d/m/Y'}}</span>
-      </div>
-      <div class="row">
-      </div>
-  
-      <div class="row">
-        <span>القائم بالعمل اثناء الاجازه: {{data.vacation.substitute_employee}}</span>
-      </div>
-      <div class="row" style="margin-bottom: 0px;">
-        <div>
-          <span>توقيع القائم بعمل مدير ادارة / قسم: </span>
-          <div style="width: 250px; border: 1px solid #2e2e2e; height: 200px; font-weight: bold; font-size: 18px; padding: 10px; text-align: center; margin-top: 10px;">
-            {% if data.manager_signature %}
-              <img src="data:image/png;base64,{{ data.manager_signature }}" alt="توقيع المدير" width="100%" height="100%">
-            {% elif data.vacation.status == '2' %}
+    <div class="row">
+      <span>الاسم: {{data.vacation.employee.name}}</span>
+    </div>
+
+    <div class="row">
+      <span>نوع الاجازه: {{data.vacation.get_vacation_type_display}}</span>
+    </div>
+    <div class="row">
+      <span>مدة الاجازه: {{data.vacation.duration}} ايام</span>
+    </div>
+    
+    <div class="row">
+      <span>الى: {{data.vacation.end_date|date:'d/m/Y'}}</span>
+    </div>
+    <div class="row">
+      <span>من: {{data.vacation.start_date|date:'d/m/Y'}}</span>
+    </div>
+    
+    <div class="row"></div>
+    <div class="row" style="margin-top: 15px;">
+      <span>تحريراً في: {{data.today_date}}</span>
+    </div>
+    
+    <div class="row" style="margin-bottom: 0px;">
+      <div>
+        <span>توقيع القائم بعمل مدير ادارة / قسم: </span>
+        <div style="width: 250px; border: 1px solid #2e2e2e; height: 200px; font-weight: bold; font-size: 18px; padding: 10px; text-align: center; margin-top: 10px;">
+          {% if data.manager_signature %}
+            <img src="data:image/png;base64,{{ data.manager_signature }}" alt="توقيع المدير" style="width: 100%; height: 100%;">
+            
+          {% elif data.vacation.status == '2' %}
             <span>تم الموافقه علي الاجازه</span>
-            {% else %}
-              <span>لم يتم الموافقه او تم رفض الاجازه</span>
-            {% endif %}
-          </div>
+          {% else %}
+            <span>لم يتم الموافقه او تم رفض الاجازه</span>
+          {% endif %}
         </div>
       </div>
     </div>
+    <div class="row">
+      <span>القائم بالعمل اثناء الاجازه: {{data.vacation.substitute_employee}}</span>
+    </div>
     
-    <table>
-      <tr>
-        <th colspan="2">الاجازه المستحقه عن السنه الحاليه</th>
-        <th colspan="2">الاجازه المتبقي عن السنه الحاليه</th>
-      </tr>
-      <tr>
-        <th>اعتيادي</th>
-        <th>عارضه</th>
-        <th>اعتيادي</th>
-        <th>عارضه</th>
-      </tr>
-      <tr>
-        <td>{{ data.Accrued_vacation_balance1 }} ايام</td>
-        <td>{{ data.Accrued_vacation_balance2 }} ايام</td>
-        <td>{{ data.remaining_vacation_balance1 }} ايام</td>
-        <td>{{ data.remaining_vacation_balance2 }} ايام</td>
-      </tr>
-    </table>
+  </div>
+  
+  <table>
+    <tr>
+      <th colspan="2">الاجازه المستحقه عن السنه الحاليه</th>
+      <th colspan="2">الاجازه المتبقي عن السنه الحاليه</th>
+    </tr>
+    <tr>
+      <th>اعتيادي</th>
+      <th>عارضه</th>
+      <th>اعتيادي</th>
+      <th>عارضه</th>
+    </tr>
+    <tr>
+      <td>{{ data.Accrued_vacation_balance1 }} ايام</td>
+      <td>{{ data.Accrued_vacation_balance2 }} ايام</td>
+      <td>{{ data.remaining_vacation_balance1 }} ايام</td>
+      <td>{{ data.remaining_vacation_balance2 }} ايام</td>
+    </tr>
+  </table>
 
-    <footer>
-      <br><br>
-      <hr>
-      <h4 style="margin-top: 0px;">القاهره الجديدة - التجمع الخامس - شارع النصر - اللوتس الجنوبية</h4>
-    </footer>
-
-  </body>
+  <footer>
+    <br><br>
+    <hr>
+    <h4 style="margin-top: 0px;">القاهره الجديدة - التجمع الخامس - شارع النصر - اللوتس الجنوبية</h4>
+  </footer>
+</body>
 </html>
