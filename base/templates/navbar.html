@@ -70,6 +70,21 @@
                             </ul>
                         </li>
                     {% endif %}
+                    {% if request.user.department.department_id == 1 and not request.user.is_manager %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px; font-weight: 500;">
+                            {% if no_unactive_requests != 0 %}
+                                <span class="btn save-btn" style="width: 25px; height: 25px; padding: 0px;">
+                                    {{no_unactive_requests}}
+                                </span>
+                            {% endif %}
+                            التحكم
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="direction: rtl;">
+                            <li><a class="dropdown-item" href="{% url "usersRequests" %}"><span class="btn save-btn ms-2" style="width: 25px; height: 25px; padding: 0px;">{{no_unactive_requests}}</span>طلبات الانضمام</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
                 {% endif %}
             </ul>
             <ul class="navbar-nav me-auto">

@@ -22,7 +22,6 @@ urlpatterns = [
     path('editdepartment/<int:department_id>/', views.editdepartment, name='editdepartment'),
     path('removedepartment/<int:department_id>/', views.removedepartment, name='removedepartment'),
 
-
     path('reset/password/', views.CustomPasswordResetView.as_view(), name='reset_password'),
     path('reset/password/sent/', auth_views.PasswordResetDoneView.as_view(template_name='registration/reset_password_sent.html'), name="password_reset_done"),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/reset.html'), name='password_reset_confirm'),

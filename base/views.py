@@ -122,6 +122,18 @@ class CustomPasswordResetView(PasswordResetView):
 
 def signup(request):
     error_messages = None
+    departments = Department.objects.filter()
+
+    academic_departments = []
+    administrative_departments = []
+
+    for department in departments:
+        if 'اعضاء هيئة تدريس' in department.name:
+            Dname = department.name.split('-')
+            academic_departments.append({'id': department.department_id, 'name': Dname[1]})
+        else:
+            Dname = department.name.split('-')
+            administrative_departments.append({'id': department.department_id, 'name': Dname[1]})
 
     if request.method == "POST":
         form = MyUserCreationForm(request.POST)
@@ -159,7 +171,14 @@ def signup(request):
     else:
         form = MyUserCreationForm()
 
-    return render(request, "registration/signup.html", {"form": form, "error_messages": error_messages})
+    context = {
+        "form": form,
+        'academic_departments': academic_departments,
+        'administrative_departments': administrative_departments,
+        "error_messages": error_messages
+    }
+
+    return render(request, "registration/signup.html", context)
 
 def send_verification_email(user, token):
     subject = 'Verify your email address'
@@ -228,13 +247,15 @@ def logoutUser(request):
 def userprofile(request, username):
     user = User.objects.get(username=username)
     if request.method == 'POST':
-        user.address = request.POST.get('address')
-        user.phone = request.POST.get('phone')
+        if request.POST.get('address'):
+            user.address = request.POST.get('address')
+        if request.POST.get('phone'):
+            user.phone = request.POST.get('phone')
         user.save()
 
         if 'newSignature' in request.FILES:
             try:
-                manager = DepartmentManager.objects.get(department = user.department.department_id)
+                manager = DepartmentManager.objects.get(department=user.department.department_id)
                 manager.signature = request.FILES['newSignature']
                 manager.save()
             except DepartmentManager.DoesNotExist:
@@ -242,7 +263,7 @@ def userprofile(request, username):
 
             return redirect('user-profile', username=username)
     try:
-        manager = DepartmentManager.objects.get(department = user.department.department_id)
+        manager = DepartmentManager.objects.get(department=user.department.department_id)
     except DepartmentManager.DoesNotExist:
         manager = None
 
@@ -303,7 +324,7 @@ def deleteUser(request, username):
             html_message=html_message,
         )
         user.delete()
-        return usersRequests(request)
+        return redirect('usersRequests')
 
     except Vacation.DoesNotExist:
         return render(request, 'error_page/404.html')
@@ -331,7 +352,7 @@ def updateUser(request, username):
             [user.email],
             html_message=html_message,
         )
-        return usersRequests(request)
+        return redirect('usersRequests')
 
     except Vacation.DoesNotExist:
         return render(request, 'error_page/404.html')
@@ -373,29 +394,16 @@ def manageDepartment(request):
 
     if request.method == 'POST':
         department_name = request.POST.get('department_name')
-        department_manager_id = request.POST.get('department_manager')
+        department_type = request.POST.get('department_type')
 
         department = Department.objects.create(
-            name = department_name
-        )
-
-        manager = User.objects.get(id = department_manager_id)
-        manager.is_manager = True
-        manager.save()
-
-        DepartmentManager.objects.create(
-            employee = manager,
-            department = department,
+            name = department_type + ' - ' + department_name
         )
         return redirect("manageDepartment")
 
-    manager_list_ids = DepartmentManager.objects.values_list("employee__id")
-    users = User.objects.filter(is_active = True, is_manager = False).exclude(id__in=manager_list_ids)
     context = {
         'full_join_result' : full_join_result,
-        'users' : users,
     }
-
     return render(request, "controll/manageDepartment.html", context)
 
 
@@ -693,7 +701,6 @@ def reject_vacation(request, request_number):
 
 
 from django.db.models import Sum
-from weasyprint import HTML
 
 def pdf_report_create(request, request_number):
     template_path = 'other_temp/pdf_template.html'
@@ -706,57 +713,40 @@ def pdf_report_create(request, request_number):
     except FileNotFoundError:
         logo = ''
 
+    vacation = Vacation.objects.get(request_number=request_number)
+
+    manager_signature_path = os.path.join(settings.MEDIA_ROOT, f'{vacation.manager_signature}') 
     try:
-        # Fetch the vacation request
-        vacation = Vacation.objects.get(request_number=request_number)
+        with open(manager_signature_path, 'rb') as image_file:
+            image_data = image_file.read()
+        manager_signature = base64.b64encode(image_data).decode('utf-8')
+    except FileNotFoundError:
+        manager_signature = ''
 
-        # Calculate accrued balances until request_date
-        balance1 = Vacation.objects.filter(employee=vacation.employee, vacation_type='0', status=2, request_number__lte=vacation.request_number).aggregate(Sum('duration'))['duration__sum'] or 0
-        balance2 = Vacation.objects.filter(employee=vacation.employee, vacation_type='1', status=2, request_number__lte=vacation.request_number).aggregate(Sum('duration'))['duration__sum'] or 0
+    data = {
+        "vacation": vacation,
+        "department": vacation.employee.department.name,
+        "logo": logo, 
+        "manager_signature": manager_signature, 
+    }
 
-        remaining_vacation_balance1 = vacation.employee.vacation1 - balance1
-        remaining_vacation_balance2 = 7 - balance2
+    context = {'data': data}
 
-        manager_signature_path = os.path.join(settings.MEDIA_ROOT, f'{vacation.manager_signature}')
-        try:
-            with open(manager_signature_path, 'rb') as image_file:
-                image_data = image_file.read()
-            manager_signature = base64.b64encode(image_data).decode('utf-8')
-        except FileNotFoundError:
-            manager_signature = ''
-        today_date = datetime.today().strftime('%d/%m/%Y')
+    html_string = render_to_string(template_path, context)
 
+    try:
+        client = pdfcrowd.HtmlToPdfClient('eslamt147', 'f9469b33bd059981cf203ba75288c057')
+        
+        client.convertStringToFile(html_string, 'Vacation_report.pdf')
 
-        data = {
-            "vacation": vacation,
-            "Accrued_vacation_balance1": balance1,
-            "Accrued_vacation_balance2": balance2,
-            "remaining_vacation_balance1": remaining_vacation_balance1,
-            "remaining_vacation_balance2": remaining_vacation_balance2,
-            "vacation_balance2": balance2,
-            "department": vacation.employee.department.name,
-            "logo": logo,
-            "manager_signature": manager_signature,
-            "today_date": today_date,
-        }
+        with open('Vacation_report.pdf', 'rb') as pdf_file:
+            pdf = pdf_file.read()
+        
+        response = HttpResponse(pdf, content_type='application/pdf')
+        return response
 
-        context = {'data': data}
-
-        html_string = render_to_string(template_path, context)
-
-        try:
-            html = HTML(string=html_string)
-            pdf_file = html.write_pdf()
-
-            response = HttpResponse(pdf_file, content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="{vacation.request_number}.pdf"'
-            return response
-
-        except Exception as e:
-            return HttpResponse(f"PDF conversion failed: {str(e)}")
-
-    except Vacation.DoesNotExist:
-        return HttpResponse("Vacation request does not exist")
+    except pdfcrowd.Error as why:
+        return HttpResponse("PDF conversion failed: {}".format(why)) 
 
 
 
@@ -828,49 +818,43 @@ def pdf_report_department(request, department):
         logo = base64.b64encode(image_data).decode('utf-8')
     except FileNotFoundError:
         logo = ''
-    
-    try:
-        # Check if context_report contains the necessary keys
-        if 'start_date' not in context_report or 'end_date' not in context_report or 'department_id' not in context_report:
-            return HttpResponse("Required data not found in context_report", status=400)
-    
-        today_date = datetime.today().strftime('%d/%m/%Y')
-    
-        data = {
-            'department': department,
-            'vacation_data': context_report['vacation_data'],
-            'start_date': context_report['start_date'],
-            'logo': logo,
-            'end_date': context_report['end_date'],
-            'today_date': today_date,
-        }
-    
-        context = {'data': data}
-    
-        html_string = render_to_string(template_path, context)
-    
-        try:
-            # Convert the HTML to PDF using WeasyPrint
-            html = HTML(string=html_string)
-            pdf_file = html.write_pdf()
-    
-            response = HttpResponse(pdf_file, content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="Vacation_report_department.pdf"'
-            return response
-    
-        except Exception as e:
-                return HttpResponse(f"PDF conversion failed: {str(e)}")
 
-    except Vacation.DoesNotExist:
-        return HttpResponse("Vacation request does not exist")
+    # Check if context_report contains the necessary keys
+    if 'start_date' not in context_report or 'end_date' not in context_report or 'department_id' not in context_report:
+        return HttpResponse("Required data not found in context_report", status=400)
+
+    data = {
+        'department': department,
+        'vacation_data': context_report['vacation_data'],
+        'start_date': context_report['start_date'],
+        "logo": logo, 
+        'end_date': context_report['end_date'],
+    }
+
+    context = {'data': data}
+
+    html_string = render_to_string(template_path, context)
+
+    try:
+        client = pdfcrowd.HtmlToPdfClient('eslamt147', 'f9469b33bd059981cf203ba75288c057')
+        client.convertStringToFile(html_string, 'Vacation_report_department.pdf')
+
+        with open('Vacation_report_department.pdf', 'rb') as pdf_file:
+            pdf = pdf_file.read()
+
+        response = HttpResponse(pdf, content_type='application/pdf')
+        return response
+
+    except pdfcrowd.Error as why:
+        return HttpResponse(f"PDF conversion failed: {why}", status=500)
 
 
 
 def Showuser(request):
-    users = User.objects.all()
+    users = User.objects.filter(is_manager=False)
     query = request.GET.get('q')
     if query:
-        users = users.filter(name__icontains=query)
+        users = users.filter(name__icontains=query, is_manager=False)
 
     context = {
         'users': users

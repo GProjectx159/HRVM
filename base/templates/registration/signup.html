@@ -145,35 +145,21 @@
             var departmentOptions = '';
 
             if (role === 'إداري') {
-                departmentOptions += '<option value="1">موارد بشرية</option>';
-                departmentOptions += '<option value="2">تكنولوجيا المعلومات</option>';
-                departmentOptions += '<option value="3">مبنى الورش</option>';
-                departmentOptions += '<option value="4">القائم بعمل امين الكلية</option>';
-                departmentOptions += '<option value="5">مدير المعامل</option>';
-                departmentOptions += '<option value="6">اخصائي شؤون إدارية</option>';
-                departmentOptions += '<option value="7">مدير إدارة الشؤون الإدارية</option>';
-                departmentOptions += '<option value="8">اخصائي شؤون مالية</option>';
-                departmentOptions += '<option value="9">مدير المخازن</option>';
-                departmentOptions += '<option value="10">علاقات عامة</option>';
-                departmentOptions += '<option value="11">إدارة الشؤون</option>';
-                departmentOptions += '<option value="12">اخصائي شؤون طلاب</option>';
-                departmentOptions += '<option value="13">إدارة تحول رقمي</option>';
-                departmentOptions += '<option value="14">إدارةالتدريب</option>';
-                departmentOptions += '<option value="15">مكتب السكرتارية</option>';
-                departmentOptions += '<option value="16">مكتب رئيس الجامعة</option>';
-                departmentOptions += '<option value="17">مكتب عميد الكلية</option>';
-
+                // عمل حلقة لملء الخيارات من الأراي الإدارية
+                {% for department in administrative_departments %}
+                    departmentOptions += '<option value="{{ department.id }}">{{ department.name }}</option>';
+                {% endfor %}
             } else if (role === 'عضو هيئة تدريس') {
-                departmentOptions += '<option value="18">تكنولوجيا المعلومات</option>';
-                departmentOptions += '<option value="19">ميكاترونكس</option>';
-                departmentOptions += '<option value="20">اوتوترونكس</option>';
-                departmentOptions += '<option value="21">طاقة متجددة</option>';
-                departmentOptions += '<option value="22">بترول</option>';
+                // عمل حلقة لملء الخيارات من الأراي الأكاديمية
+                {% for department in academic_departments %}
+                    departmentOptions += '<option value="{{ department.id }}">{{ department.name }}</option>';
+                {% endfor %}
             }
 
             $('#department').html(departmentOptions);
         });
     });
+
 </script>
 
 {% endblock content %}
