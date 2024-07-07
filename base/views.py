@@ -484,9 +484,9 @@ def requestView(request):
     search = request.GET.get('search')
 
     if request.user.department.department_id == 1:
-        vacations = Vacation.objects.filter(status=2).order_by('-request_number')
+        vacations = Vacation.objects.filter().order_by('-request_number')
     elif request.user.is_manager:
-        vacations = Vacation.objects.filter(employee__department__department_id=request.user.department.department_id, status=2).order_by('-request_number')
+        vacations = Vacation.objects.filter(employee__department__department_id=request.user.department.department_id).order_by('-request_number')
     else:
         vacations = Vacation.objects.filter(employee=request.user).order_by('-request_number')
 
