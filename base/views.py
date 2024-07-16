@@ -27,7 +27,6 @@ from datetime import datetime, timedelta
 
 import os
 import base64
-import pdfcrowd
 import uuid
 
 def error_404_view(request, exception):
