@@ -9,7 +9,7 @@
   <style>
       @page {
         size: A4; /* حجم الصفحة */
-        margin: 1cm; /* تعيين هوامش 1 سم على كل جانب */
+        margin: 1cm 1cm 0.5cm 1cm; /* تعيين هوامش 1 سم على كل جانب */
       }
       body {
         margin: 0; /* إزالة هامش الصفحة الافتراضي للجسم */
@@ -26,7 +26,7 @@
         font-size: 16px;
         width: 100%;
         border-collapse: collapse;
-        margin-top: 25px;
+        margin-top: 0px;
       }
       th, td {
         border: 1px solid #ddd;
@@ -38,11 +38,33 @@
         font-weight: bold;
       }
       footer {
-        text-align: center;
+        text-align: right;
         margin-top: 20px;
-        position: fixed;
-        bottom: 0;
-        width: 100%;
+        padding: 10px;
+      }
+
+      footer .contact-info {
+          font-size: 14px;
+          line-height: 1.6;
+      }
+
+      footer hr {
+          border: 1px solid #000;
+          margin: 10px 0;
+      }
+
+      footer h4 {
+          margin-top: 0px;
+      }
+
+      footer .phone-info {
+          font-size: 14px;
+          line-height: 1.6;
+      }
+
+      footer a {
+          text-decoration: none;
+          color: #000;
       }
       .grid-container {
         display: grid;
@@ -54,17 +76,22 @@
 </head>
 <body>
   <div style="text-align: center; display: flex; align-items: center; justify-content: space-between;">
-    <div style="width: 290px; border: 1px solid #2e2e2e; height: 100px; font-weight: bold; font-size: 18px;">
+
+    <div style="width: 290px; height: 100px; font-weight: bold; font-size: 20px;">
+      <p style="margin: 0px; margin-top: 5px; font-size: 16px;">جامعة القاهرة الجديدة التكنولوجية</p>
+      <p style="margin: 5px 0px; font-size: 16px;">كلية تكنولوجيا الصناعة والطاقه</p>
+      <p style="margin: 0px; font-size: 16px;"> ادارة الموارد البشرية</p>
+    </div>
+
+    <img src="data:image/png;base64,{{ data.logo }}" style="width: 100px; height: 100px;">
+
+    <div style="width: 290px; height: 100px; font-weight: bold; font-size: 18px;">
       <p style="margin: 0px; margin-top: 10px;font-size: 16px;">New Cairo University Technology</p>
       <p style="margin: 5px 0px; font-size: 14px;">Faculty ofindustry & Energy Technology</p>
       <p style="margin: 0px; font-size: 16px;">Department of Human Resources</p>
     </div>
-    <img src="data:image/png;base64,{{ data.logo }}" style="width: 100px; height: 100px;">
-    <div style="width: 290px; border: 1px solid #2e2e2e; height: 100px; font-weight: bold; font-size: 20px;">
-      <p style="margin: 0px; margin-top: 5px; font-size: 16px;">جامعة القاهرة الجديدة التكنولوجية</p>
-      <p style="margin: 5px 0px; font-size: 16px;">كلية تكنولوجيا الصناعة</p>
-      <p style="margin: 0px; font-size: 16px;">والطاقه - ادارة الموارد البشرية</p>
-    </div>
+
+
   </div>
   <hr>
   <div style="text-align: center;">
@@ -98,14 +125,14 @@
     </div>
     
     <div class="row"></div>
-    <div class="row" style="margin-top: 15px;">
+    <div class="row">
       <span>تحريراً في: {{data.today_date}}</span>
     </div>
     
     <div class="row" style="margin-bottom: 0px;">
       <div>
         <span>توقيع القائم بعمل مدير ادارة / قسم: </span>
-        <div style="width: 250px; border: 1px solid #2e2e2e; height: 200px; font-weight: bold; font-size: 18px; padding: 10px; text-align: center; margin-top: 10px;">
+        <div style="width: 250px; height: 200px; font-weight: bold; font-size: 18px; padding: 10px; text-align: center; margin-top: 10px;">
           {% if data.manager_signature %}
             <img src="data:image/png;base64,{{ data.manager_signature }}" alt="توقيع المدير" style="width: 100%; height: 100%;">
             
@@ -143,9 +170,31 @@
   </table>
 
   <footer>
-    <br><br>
     <hr>
-    <h4 style="margin-top: 0px;">القاهره الجديدة - التجمع الخامس - شارع النصر - اللوتس الجنوبية</h4>
+    <div class="contact-info">
+      <div style="margin: auto; width: 100%; text-align: center;">
+        <h4>القاهره الجديدة - التجمع الخامس - شارع النصر - اللوتس الجنوبية</h4>
+      </div>
+
+        <div style="display: flex; justify-content: space-between; margin: 0px; padding: 0px;">
+          <p style="margin: 0px;">
+            02-253902-43/44/46
+          </p>
+          <a href="mailto:info@nctu.edu.eg">info@nctu.edu.eg</a>
+        </div>
+
+        <div style="display: flex; justify-content: space-between;">
+          <p style="margin: 0px;" >
+            02-25390247
+          </p>
+          <a href="https://nctu.edu.eg" target="_blank">https://nctu.edu.eg</a>
+
+        </div>
+
+        <div style="margin: auto; width: 100%; text-align: center;">
+          <a href="https://www.facebook.com/nctu.edu.eg" target="_blank">https://www.facebook.com/nctu.edu.eg</a>
+        </div>
+    </div>
   </footer>
 </body>
 </html>

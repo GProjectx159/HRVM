@@ -5,6 +5,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path("", views.home, name="home"),
     path("Home/", views.home_after, name="home_after"),
+    path("About_Us/", views.about, name="about"),
 
     path("signup/", views.signup, name="signup"),
     path('verify/<str:token>/<str:userid>/', views.verify_email, name='verify_email'),
@@ -22,6 +23,11 @@ urlpatterns = [
     path('editdepartment/<int:department_id>/', views.editdepartment, name='editdepartment'),
     path('removedepartment/<int:department_id>/', views.removedepartment, name='removedepartment'),
 
+    path('manageDepartment_submanager/', views.manageDepartment_submanager, name='manageDepartment_submanager'),
+    path('add_sub_manager/', views.add_sub_manager, name='add_sub_manager'),
+    path('remove_sub_manager/<int:user_id>/', views.remove_sub_manager, name='remove_sub_manager'),
+
+
     path('reset/password/', views.CustomPasswordResetView.as_view(), name='reset_password'),
     path('reset/password/sent/', auth_views.PasswordResetDoneView.as_view(template_name='registration/reset_password_sent.html'), name="password_reset_done"),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/reset.html'), name='password_reset_confirm'),
@@ -34,6 +40,12 @@ urlpatterns = [
     path('AcceptRequest/', views.AcceptRequest, name='AcceptRequest'),
     path('showRequest/<str:pk>/', views.showRequest, name='showRequest'),
     path('showMyRequest/<str:pk>/', views.showMyRequest, name='showMyRequest'),
+
+    path('reviewRequests/', views.reviewRequests, name='reviewRequests'),
+    path('reviewRequest/<str:pk>/', views.reviewRequest, name='reviewRequest'),
+    
+    path('approve_review/<int:request_number>/', views.approve_review, name='approve_review'),
+    path('reject_review/<int:request_number>/', views.reject_review, name='reject_review'),
 
     path('approve/<int:request_number>/', views.approve_vacation, name='approve_vacation'),
     path('reject/<int:request_number>/', views.reject_vacation, name='reject_vacation'),

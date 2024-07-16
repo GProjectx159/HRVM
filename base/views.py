@@ -27,7 +27,6 @@ from datetime import datetime, timedelta
 
 import os
 import base64
-import pdfcrowd
 import uuid
 
 def error_404_view(request, exception):
@@ -38,16 +37,36 @@ def home(request):
             return redirect('home_after')
     return render(request, "main_page/home.html")
 
+
+def about(request):
+
+    return render(request, "main_page/about.html")
+
 @login_required(login_url='login')
 def home_after(request):
     return render(request, "main_page/home_after.html")
 
 def loginUser(request):
-    form = None
+    form = MyUserCreationForm()  # Assuming you have a user creation form
+
     if request.user.is_authenticated:
         return redirect('home_after')
 
     error_message = None
+    block_time = 60  # Block time in seconds
+
+    if 'login_attempts' not in request.session:
+        request.session['login_attempts'] = 0
+    if 'block_until' not in request.session:
+        request.session['block_until'] = None
+
+    # Check if user is blocked
+    if request.session['block_until']:
+        block_until = timezone.datetime.fromisoformat(request.session['block_until'])
+        if timezone.now() < block_until:
+            error_message = 'لقد تم حظرك لمدة دقيقة واحدة.'
+            return render(request, 'registration/login.html', {'form': form, 'error_message': error_message})
+
     if request.method == 'POST':
         phone = request.POST.get('phone').lower()
         password = request.POST.get('password')
@@ -57,36 +76,36 @@ def loginUser(request):
         except User.DoesNotExist:
             user = None
 
-        if user is not None and user.is_active:
-            if user is not None and not user.is_verified:
-                error_message = 'حسابك لم ينشط بعد تاكد من البريد الالكتروني'
-                submitted_data = request.POST.copy()
-                form = MyUserCreationForm(submitted_data)
-            else:
-                user = authenticate(request, phone=phone, password=password)
-
-                if user is not None:
-                    auth_login(request, user)
-                    if user.is_manager:
-                        return redirect('AcceptRequest')
-                    else:
-                        return redirect('user-profile', username = request.user.username)
+        if user is not None:
+            if user.is_active:
+                if not user.is_verified:
+                    error_message = 'حسابك لم ينشط بعد تاكد من البريد الالكتروني'
                 else:
-                    error_message = 'رقم التليفون او كلمة المرور خطأ'
-                    submitted_data = request.POST.copy()
-                    form = MyUserCreationForm(submitted_data)
-
-        elif user is not None and not user.is_active:
-            error_message = 'حسابك يتم مراجعتة اتصل بالدعم'
-            submitted_data = request.POST.copy()
-            form = MyUserCreationForm(submitted_data)
-
+                    user = authenticate(request, phone=phone, password=password)
+                    if user is not None:
+                        auth_login(request, user)
+                        request.session['login_attempts'] = 0  # Reset login attempts on successful login
+                        if user.is_manager:
+                            return redirect('AcceptRequest')
+                        else:
+                            return redirect('user-profile', username=request.user.username)
+                    else:
+                        error_message = 'رقم التليفون او كلمة المرور خطأ'
+            else:
+                error_message = 'حسابك يتم مراجعتة اتصل بالدعم'
         else:
             error_message = 'رقم التليفون او كلمة المرور خطأ'
-            submitted_data = request.POST.copy()
-            form = MyUserCreationForm(submitted_data)
 
-    return render(request, 'registration/login.html', {'form':form , 'error_message': error_message})
+        # Increment login attempts and check if the user should be blocked
+        request.session['login_attempts'] += 1
+        if request.session['login_attempts'] >= 3:
+            request.session['block_until'] = (timezone.now() + timedelta(seconds=block_time)).isoformat()
+            error_message = 'لقد تم حظرك لمدة دقيقة واحدة.'
+
+    submitted_data = request.POST.copy()
+    form = MyUserCreationForm(submitted_data)
+
+    return render(request, 'registration/login.html', {'form': form, 'error_message': error_message})
 
 class CustomPasswordResetView(PasswordResetView):
     form_class = PasswordResetForm
@@ -293,8 +312,7 @@ def usersRequests(request):
     context = {
         'inactive_users' : inactive_users,
     }
-    if not request.user.is_manager:
-        return render(request, "main_page/home_after.html", context)
+
     return render(request, "controll/usersRequests.html", context)
 
 @login_required(login_url='login')
@@ -483,24 +501,35 @@ def requestView(request):
     q = request.GET.get('q')
     search = request.GET.get('search')
 
+    my_vacations = Vacation.objects.filter(employee=request.user).order_by('-request_number')
+
     if request.user.department.department_id == 1:
-        vacations = Vacation.objects.filter().order_by('-request_number')
+        other_vacations = Vacation.objects.filter(status='2').order_by('-request_number').exclude(employee=request.user)  # HR sees all approved vacations
     elif request.user.is_manager:
-        vacations = Vacation.objects.filter(employee__department__department_id=request.user.department.department_id).order_by('-request_number')
+        other_vacations = Vacation.objects.filter(
+            employee__department__department_id=request.user.department.department_id,
+            status='2'  # Manager sees only approved vacations of their department
+        ).order_by('-request_number').exclude(employee=request.user)
     else:
-        vacations = Vacation.objects.filter(employee=request.user).order_by('-request_number')
+        other_vacations = Vacation.objects.none()
 
     if q:
-        vacations = vacations.filter(status=q)
+        my_vacations = my_vacations.filter(status=q)
+        other_vacations = other_vacations.filter(status=q)
 
     if search:
-        vacations = vacations.filter(
+        my_vacations = my_vacations.filter(
+            Q(employee__name__icontains=search) |
+            Q(request_number__icontains=search)
+        )
+        other_vacations = other_vacations.filter(
             Q(employee__name__icontains=search) |
             Q(request_number__icontains=search)
         )
 
     context = {
-        'vacations': vacations,
+        'my_vacations': my_vacations,
+        'other_vacations': other_vacations,
         'department': request.user.department
     }
     return render(request, "vacation_request/requestView.html", context)
@@ -701,53 +730,74 @@ def reject_vacation(request, request_number):
 
 
 from django.db.models import Sum
+from weasyprint import HTML
 
 def pdf_report_create(request, request_number):
     template_path = 'other_temp/pdf_template.html'
 
     logo_path = os.path.join(settings.MEDIA_ROOT, 'NCTU-logo-1 (2).png')
-    try:
-        with open(logo_path, 'rb') as image_file:
-            image_data = image_file.read()
-        logo = base64.b64encode(image_data).decode('utf-8')
-    except FileNotFoundError:
-        logo = ''
+    logo = ''
+    if os.path.isfile(logo_path):
+        try:
+            with open(logo_path, 'rb') as image_file:
+                image_data = image_file.read()
+            logo = base64.b64encode(image_data).decode('utf-8')
+        except Exception as e:
+            logo = ''
 
-    vacation = Vacation.objects.get(request_number=request_number)
-
-    manager_signature_path = os.path.join(settings.MEDIA_ROOT, f'{vacation.manager_signature}') 
     try:
-        with open(manager_signature_path, 'rb') as image_file:
-            image_data = image_file.read()
-        manager_signature = base64.b64encode(image_data).decode('utf-8')
-    except FileNotFoundError:
+        # Fetch the vacation request
+        vacation = Vacation.objects.get(request_number=request_number)
+
+        # Calculate accrued balances until request_date
+        balance1 = Vacation.objects.filter(employee=vacation.employee, vacation_type='0', status=2, request_number__lte=vacation.request_number).aggregate(Sum('duration'))['duration__sum'] or 0
+        balance2 = Vacation.objects.filter(employee=vacation.employee, vacation_type='1', status=2, request_number__lte=vacation.request_number).aggregate(Sum('duration'))['duration__sum'] or 0
+
+        remaining_vacation_balance1 = vacation.employee.vacation1 - balance1
+        remaining_vacation_balance2 = 7 - balance2
+
+        manager_signature_path = os.path.join(settings.MEDIA_ROOT, f'{vacation.manager_signature}')
         manager_signature = ''
+        if os.path.isfile(manager_signature_path):
+            try:
+                with open(manager_signature_path, 'rb') as image_file:
+                    image_data = image_file.read()
+                manager_signature = base64.b64encode(image_data).decode('utf-8')
+            except Exception as e:
+                manager_signature = ''
 
-    data = {
-        "vacation": vacation,
-        "department": vacation.employee.department.name,
-        "logo": logo, 
-        "manager_signature": manager_signature, 
-    }
+        today_date = datetime.today().strftime('%d/%m/%Y')
 
-    context = {'data': data}
+        data = {
+            "vacation": vacation,
+            "Accrued_vacation_balance1": balance1,
+            "Accrued_vacation_balance2": balance2,
+            "remaining_vacation_balance1": remaining_vacation_balance1,
+            "remaining_vacation_balance2": remaining_vacation_balance2,
+            "vacation_balance2": balance2,
+            "department": vacation.employee.department.name,
+            "logo": logo,
+            "manager_signature": manager_signature,
+            "today_date": today_date,
+        }
 
-    html_string = render_to_string(template_path, context)
+        context = {'data': data}
 
-    try:
-        client = pdfcrowd.HtmlToPdfClient('eslamt147', 'f9469b33bd059981cf203ba75288c057')
-        
-        client.convertStringToFile(html_string, 'Vacation_report.pdf')
+        html_string = render_to_string(template_path, context)
 
-        with open('Vacation_report.pdf', 'rb') as pdf_file:
-            pdf = pdf_file.read()
-        
-        response = HttpResponse(pdf, content_type='application/pdf')
-        return response
+        try:
+            html = HTML(string=html_string)
+            pdf_file = html.write_pdf()
 
-    except pdfcrowd.Error as why:
-        return HttpResponse("PDF conversion failed: {}".format(why)) 
+            response = HttpResponse(pdf_file, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{vacation.request_number}.pdf"'
+            return response
 
+        except Exception as e:
+            return HttpResponse(f"PDF conversion failed: {str(e)}")
+
+    except Vacation.DoesNotExist:
+        return HttpResponse("Vacation request does not exist")
 
 
 
@@ -819,34 +869,40 @@ def pdf_report_department(request, department):
     except FileNotFoundError:
         logo = ''
 
-    # Check if context_report contains the necessary keys
-    if 'start_date' not in context_report or 'end_date' not in context_report or 'department_id' not in context_report:
-        return HttpResponse("Required data not found in context_report", status=400)
-
-    data = {
-        'department': department,
-        'vacation_data': context_report['vacation_data'],
-        'start_date': context_report['start_date'],
-        "logo": logo, 
-        'end_date': context_report['end_date'],
-    }
-
-    context = {'data': data}
-
-    html_string = render_to_string(template_path, context)
-
     try:
-        client = pdfcrowd.HtmlToPdfClient('eslamt147', 'f9469b33bd059981cf203ba75288c057')
-        client.convertStringToFile(html_string, 'Vacation_report_department.pdf')
+        # Check if context_report contains the necessary keys
+        if 'start_date' not in context_report or 'end_date' not in context_report or 'department_id' not in context_report:
+            return HttpResponse("Required data not found in context_report", status=400)
 
-        with open('Vacation_report_department.pdf', 'rb') as pdf_file:
-            pdf = pdf_file.read()
+        today_date = datetime.today().strftime('%d/%m/%Y')
 
-        response = HttpResponse(pdf, content_type='application/pdf')
-        return response
+        data = {
+            'department': department,
+            'vacation_data': context_report['vacation_data'],
+            'start_date': context_report['start_date'],
+            'logo': logo,
+            'end_date': context_report['end_date'],
+            'today_date': today_date,
+        }
 
-    except pdfcrowd.Error as why:
-        return HttpResponse(f"PDF conversion failed: {why}", status=500)
+        context = {'data': data}
+
+        html_string = render_to_string(template_path, context)
+
+        try:
+            # Convert the HTML to PDF using WeasyPrint
+            html = HTML(string=html_string)
+            pdf_file = html.write_pdf()
+
+            response = HttpResponse(pdf_file, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="Vacation_report_department.pdf"'
+            return response
+
+        except Exception as e:
+                return HttpResponse(f"PDF conversion failed: {str(e)}")
+
+    except Vacation.DoesNotExist:
+        return HttpResponse("Vacation request does not exist")
 
 
 
@@ -903,3 +959,138 @@ def Rday(request):
         'manager_vacations': manager_vacations,
     }
     return render(request, 'report/Rday.html', context)
+
+
+
+
+def reviewRequests(request):
+    sub_manager_department = request.user.department
+    employees = User.objects.filter(department=sub_manager_department)
+    vacations = Vacation.objects.filter(employee__in=employees, status='0', is_reviewed=False).order_by('-request_number')
+
+    q = request.GET.get('q', '')
+    if q:
+        vacations = vacations.filter(
+            Q(employee__name__icontains=q) |
+            Q(request_number__icontains=q)
+        )
+
+    context = {
+        'vacations': vacations,
+    }
+    return render(request, "vacation_request/reviewRequests.html", context)
+
+
+def approve_review(request, request_number):
+    try:
+        vacation = Vacation.objects.get(request_number=request_number)
+        vacation.is_reviewed = True
+        vacation.save()
+
+        return redirect('reviewRequests')
+
+    except Vacation.DoesNotExist:
+        return render(request, 'error_page/404.html')
+
+
+def reject_review(request, request_number):
+    try:
+        vacation = Vacation.objects.get(request_number=request_number)
+        vacation.status = 1
+        vacation.save()
+
+        user = User.objects.get(id=vacation.employee.id)
+
+        vacation_type = vacation.vacation_type
+        duration = vacation.duration
+
+        if vacation_type == '0':
+            user.vacation1_balance = F('vacation1_balance') + duration
+        elif vacation_type == '1':
+            user.vacation2_balance = F('vacation2_balance') + duration
+        elif vacation_type == '2':
+            user.vacation3_balance = F('vacation3_balance') + duration
+        elif vacation_type == '3':
+            user.vacation4_balance = F('vacation4_balance') + 1
+
+        user.save()
+
+        context = {
+            'user': vacation.employee,
+            'protocol': 'http',
+            'domain': request.get_host(),
+            'vacation_id': vacation.request_number,
+        }
+        html_message = render_to_string('notifications/rejectVacation.html', context)
+        plain_message = strip_tags(html_message)
+        send_mail(
+            'Vacation Rejected',
+            plain_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [vacation.employee.email],
+            html_message=html_message,
+        )
+
+        return redirect('reviewRequests')
+    except Vacation.DoesNotExist:
+        return render(request, 'error_page/404.html')
+
+
+def reviewRequest(request, pk):
+    vacation = Vacation.objects.get(request_number=pk)
+
+    context = {
+        'vacation': vacation,
+    }
+    return render(request, "vacation_request/reviewRequest.html", context)
+
+from django.core.exceptions import ObjectDoesNotExist
+
+def manageDepartment_submanager(request):
+    departments = Department.objects.all()
+
+    manager = None
+    users = None
+    department_id = None
+    other_users = None
+    if request.method == 'POST':
+        department_id = int(request.POST.get('department'))
+        try:
+            manager = DepartmentManager.objects.get(department__department_id=department_id)
+            users = User.objects.filter(department__department_id=department_id, is_sub_manager=True)
+            other_users = User.objects.filter(department__department_id=department_id, is_sub_manager=False, is_manager=False)
+        except ObjectDoesNotExist:
+            # Handle case where DepartmentManager does not exist for the given department_id
+            manager = None
+            users = None
+
+    context_report = {
+        'departments': departments,
+        'manager': manager,
+        'users': users,
+        'other_users': other_users,
+        'department_id': department_id,
+    }
+
+    return render(request, 'controll/sub_manager/manageDepartment_submanager.html', context_report)
+
+
+def add_sub_manager(request):
+    if request.method == 'POST':
+        sub_manager = int(request.POST.get('sub_manager'))
+
+        user = User.objects.get(id = sub_manager)
+        user.is_sub_manager = True
+        user.save()
+
+    return redirect("manageDepartment_submanager")
+
+def remove_sub_manager(request, user_id):
+    user = User.objects.get(id = user_id)
+    user.is_sub_manager = False
+    user.save()
+
+    return redirect("manageDepartment_submanager")
+
+
+

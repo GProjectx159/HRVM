@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<body style="background-color: #f9fafb;" >
+    
+    <div style="margin: 0px 10px;">
+        <div class="container" style="padding: 0px; margin-top: 30px;">
+            <div class="d-block text-right">
+                
+                <a class="btn save-btn" href="{% url "reviewRequests" %}">عوده</a>
+                <a class="btn save-btn" href="{% url "pdf_view" vacation.request_number %}" target="_blank">طباعة الاجازه</a>
+            </div>
+        </div>
+        <section class="profile container p-3 pt-4">
+            <div style="display: flex; align-items: center;">
+                <h3 style="display: inline; margin: 0px;">اجازه رقم: {{vacation.request_number}}</h3>
+            </div>
+            <div class="Details pt-5 fs-7 ">
+                <form method="POST" >
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name">طالب الاجازه: </label>
+                            <input readonly type="text" name="name" id="name" class="input_profile" value="{{vacation.employee.name}}">
+                            
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vacation_type">نوع الاجازه:</label>
+                            <input readonly type="text" name="vacation_type" id="vacation_type" class="input_profile" value="{{ vacation.get_vacation_type_display }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="request_date">تاريخ الطلب:</label>
+                            <input readonly type="text" name="request_date" id="request_date" class="input_profile" value="{{vacation.request_date|date:'d/m/Y'}}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="duration">المده:</label>
+                            <input readonly type="text" name="duration" id="duration" class="input_profile" value="{{vacation.duration}} ايام">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="start_date">من تاريخ:</label>
+                            <input readonly type="text" name="start_date" id="start_date" class="input_profile" value="{{vacation.start_date|date:'d/m/Y'}}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="end_date">الي تاريخ:</label>
+                            <input readonly type="text" name="end_date" id="end_date" class="input_profile" value="{{vacation.end_date|date:'d/m/Y'}}">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="mb-3">
+                            <label for="substitute_employee">الموظف البديل:</label>
+                            <input readonly type="text" name="substitute_employee" id="substitute_employee" class="input_profile" value="{{vacation.substitute_employee}}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3">
+                            {% if vacation.attachment %}
+                            <label for="startwork_date">مرفق:</label><br>
+                            
+                                <button type="button" class="btn save-btn mt-2" id="showImageBtn" >عرض الصوره</button>
+                                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h5 class="modal-title" id="exampleModalLabel">صورة المرفق</h5>
+                                        </div>
+                                        <div class="modal-body">
+                                            {% if vacation.attachment %}
+                                            <img src="" id="attachmentImage" alt="صورة المرفق" style="max-width: 100%; margin: auto;">
+                                                
+                                            {% else %}
+                                            <p>لا يوجد صورة</p>
+                                            {% endif %}
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    
+
+                    
+                    
+                    <div class="row">
+                        <div>
+                            <label for="description">الوصف:</label>
+                            <textarea readonly name="description" id="description" class="input_profile">{{ vacation.description }}</textarea>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <div class="row" style="justify-content: center;">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'approve_review' vacation.request_number %}" class="btn save-btn mt-2" style="margin:auto; width: 100%;">موافقه</a>
+
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'reject_review' vacation.request_number %}" class="btn cancel-btn mt-2"  style="margin:auto; width: 100%;">رفض</a>
+                        </div>
+                    </div>
+                </form>
+                <br>
+
+            </div>
+        </section>
+    </div>
+    
+    <br>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var showImageBtn = document.getElementById("showImageBtn");
+        var attachmentImage = document.getElementById("attachmentImage");
+    
+        showImageBtn.addEventListener("click", function() {
+            var attachmentUrl = "{% if vacation.attachment %} {{ vacation.attachment.url }} {% endif %}";
+            attachmentImage.src = attachmentUrl;
+            var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+            myModal.show();
+        });
+    });
+    </script>
+{% endblock content %}

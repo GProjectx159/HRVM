@@ -13,6 +13,7 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
+    is_sub_manager = models.BooleanField(default=False)
     employee_identity = models.BigIntegerField(unique=True,default=0)
     name = models.CharField(max_length=100, default='', blank=True, null=True)
     email = models.EmailField(unique=True, null=True)
@@ -51,7 +52,8 @@ class Vacation(models.Model):
         ('4', 'اذن'),
         ('5', 'مأموريه'),
     )
-
+    is_reviewed = models.BooleanField(default=False)
+    is_edited = models.BooleanField(default=False)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES)
     request_date = models.DateTimeField()
     request_number = models.BigIntegerField()

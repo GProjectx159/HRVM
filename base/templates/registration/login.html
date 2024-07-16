@@ -12,7 +12,7 @@
           <div class="reg m-auto mt-5 pt-5 pb-5 pl-2 pr-2 container">
           <h2 class="p-5 pt-1 text-center">تسجيل الدخول</h2>
           {% if error_message %}
-              <div class="alert alert-danger" role="alert">
+              <div class="alert alert-danger" role="alert" id="error-message">
                 {{ error_message }}
               </div>
           {% endif %}
@@ -34,10 +34,31 @@
             </div> -->
             <a  href="{% url "reset_password" %}" class="d-inline-block btn" style="margin: auto auto auto 0; ">نسيت كلمة المرور؟</a>
           </div>
-          <input type="submit" value="تسجيل دخول" class="login d-block btn m-auto ">
+          <input type="submit" value="تسجيل دخول" class="login d-block btn m-auto" id="login-button">
           <a href="{% url "signup" %}" class="d-block btn m-auto"> لا تملك حسابا حتى الآن؟</a>
       </form>
     </section>
   </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      let errorMessage = document.getElementById('error-message');
+      if (errorMessage && errorMessage.innerText.includes('لقد تم حظرك لمدة دقيقة واحدة.')) {
+        let loginButton = document.getElementById('login-button');
+        loginButton.disabled = true;
+        
+        let countdown = 60; // Block time in seconds
+        let interval = setInterval(function() {
+          countdown--;
+          errorMessage.innerText = `لقد تم حظرك لمدة دقيقة واحدة. الرجاء المحاولة بعد ${countdown} ثانية.`;
+          if (countdown <= 0) {
+            clearInterval(interval);
+            loginButton.disabled = false;
+            errorMessage.innerText = '';
+          }
+        }, 1000);
+      }
+    });
+  </script>
 </body>
 {% endblock content %}

@@ -3,7 +3,6 @@
 {% block content %}
 
 <body style="background-color: #f9fafb;">
-    
     <div>
         <div style="margin: 0px 10px;">
             <div class="container" style="padding: 0px; margin-top: 30px;">
@@ -35,6 +34,54 @@
             
             <section class="profile container p-3 pt-4">
                 <div class="table-responsive">
+                    <h4>طلبات الإجازة الخاصة بي</h4>
+                    <table class="table table-striped" align="center">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">الاسم</th>
+                                <th scope="col">نوع الاجازه</th>
+                                {% if department.department_id == 1 %}
+                                <th scope="col">القسم/الاداره</th>
+                                {% endif %}
+                                <th scope="col">تاريخ الطلب</th>
+                                <th scope="col">المدة</th>
+                                <th scope="col">الحالة</th>
+                                <th scope="col">الإجراء</th>
+                                <!-- <th scope="col"></th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vacation in my_vacations %}
+                            <tr>
+                                <th scope="row">{{vacation.request_number}}</th>
+                                <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">{{ vacation.employee }}</a></td>
+                                <td>{{vacation.get_vacation_type_display}}</td>
+                                {% if department.department_id == 1 %}
+                                <td>{{vacation.employee.department}}</td>
+                                {% endif %}
+                                <td>{{vacation.request_date|date:'d/m/Y'}}</td>
+                                <td>{{vacation.duration}} ايام</td>
+                                {% if vacation.status == '0' %}
+                                <td><div class="alert alert-warning" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                {% elif vacation.status == '1' %}
+                                <td><div class="alert alert-danger" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                {% else %}
+                                <td><div class="alert alert-success" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                {% endif %}
+                                <td><a href="{% url 'showMyRequest' vacation.request_number %}" class="btn save-btn ms-2">عرض</a></td>
+                                <!-- {% if request.user == vacation.employee %}
+                                <td><a href="{% url 'editMyRequest' vacation.request_number %}" class="btn save-btn ms-2">تعديل</a></td>
+                                {% endif %} -->
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if request.user.is_manager or department.department_id == 1 %}
+                <div class="table-responsive mt-4">
+                    <h4>طلبات الإجازة للمؤسسة / القسم</h4>
                     <table class="table table-striped" align="center">
                         <thead>
                             <tr>
@@ -50,8 +97,8 @@
                                 <th scope="col">الإجراء</th>
                             </tr>
                         </thead>
-                        <tbody >
-                            {% for vacation in vacations %}
+                        <tbody>
+                            {% for vacation in other_vacations %}
                             <tr>
                                 <th scope="row">{{vacation.request_number}}</th>
                                 <td><a href="#" style=" text-decoration: none; color: #2e2e2e;">{{ vacation.employee }}</a></td>
@@ -62,19 +109,19 @@
                                 <td>{{vacation.request_date|date:'d/m/Y'}}</td>
                                 <td>{{vacation.duration}} ايام</td>
                                 {% if vacation.status == '0' %}
-                                <td><div class="alert alert-warning" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                <td><div class="alert alert-warning" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
                                 {% elif vacation.status == '1' %}
-                                <td><div class="alert alert-danger" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                <td><div class="alert alert-danger" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
                                 {% else %}
-                                <td><div class="alert alert-success" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
+                                <td><div class="alert alert-success" role="alert" style="padding: 6px 1rem; text-align: center; margin-bottom: 0px; min-width: 132px;">{{ vacation.get_status_display }}</div></td>
                                 {% endif %}
-                                
-                                <td><a href="{% url 'showMyRequest' vacation.request_number %}" class="btn save-btn ms-2">عرض</a></td>
+                                <td><a href="{% url 'showMyRequest' vacation.request_number %}" class="btn save-btn">عرض</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+                {% endif %}
             </section>
         </div>
     </div>

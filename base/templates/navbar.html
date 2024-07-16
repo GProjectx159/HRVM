@@ -23,7 +23,12 @@
                 {% if request.user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px; font-weight: 500;">
-                            {% if no_pending_vacations != 0 and request.user.is_manager %}
+                            {% if no_reviewed_vacations != 0 and request.user.is_manager %}
+                            <span class="btn save-btn" style="width: 25px; height: 25px; padding: 0px;">
+                                    {{no_reviewed_vacations}}
+                                </span>
+                            {% endif %}
+                            {% if no_pending_vacations != 0 and request.user.is_sub_manager %}
                             <span class="btn save-btn" style="width: 25px; height: 25px; padding: 0px;">
                                     {{no_pending_vacations}}
                                 </span>
@@ -35,9 +40,16 @@
                             {% if request.user.is_manager %}
                                 
                                     <li><a class="dropdown-item" href="{% url "AcceptRequest" %}"><span class="btn save-btn ms-2" style="width: 25px; height: 25px; padding: 0px;">
-                                            {{no_pending_vacations}}
+                                            {{no_reviewed_vacations}}
                                         </span>اعتماد الاجازات</a></li>
                                 
+                            {% endif %}
+                            {% if request.user.is_sub_manager %}
+                                
+                                    <li><a class="dropdown-item" href="{% url "reviewRequests" %}"><span class="btn save-btn ms-2" style="width: 25px; height: 25px; padding: 0px;">
+                                            {{no_pending_vacations}}
+                                        </span>مراجعة الاجازات</a></li>
+                        
                             {% endif %}
                         </ul>
                     </li>
@@ -65,7 +77,8 @@
                                 التحكم
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="direction: rtl;">
-                                <li><a class="dropdown-item" href="{% url "manageDepartment" %}">ادارة الاقسام / الادارات</a></li>
+                                <li><a class="dropdown-item" href="{% url "manageDepartment" %}">اعداد مدير قسم/ادارة</a></li>
+                                <li><a class="dropdown-item" href="{% url "manageDepartment_submanager" %}">اعداد نائب مدير قسم/ادارة</a></li>
                                 <li><a class="dropdown-item" href="{% url "usersRequests" %}"><span class="btn save-btn ms-2" style="width: 25px; height: 25px; padding: 0px;">{{no_unactive_requests}}</span>طلبات الانضمام</a></li>
                             </ul>
                         </li>
@@ -102,9 +115,9 @@
                             <li><a class="dropdown-item" href="{% url "logout" %}">تسجيل الخروج</a></li>
                         </ul>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class="btn save-btn" href="{% url 'logout' %}" style="font-size: 15px; width: 10%; margin-top: 5px;">تسجيل خروج</a>
-                    </li> -->
+                    <li class="nav-item">
+                        <a class="btn save-btn" href="{% url 'about' %}" style="font-size: 15px; width: 10%; margin-top: 5px;">About Us</a>
+                    </li>
                 {% endif %}
             </ul>
         </div>
