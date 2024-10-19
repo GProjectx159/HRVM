@@ -730,7 +730,7 @@ def reject_vacation(request, request_number):
 
 
 from django.db.models import Sum
-from weasyprint import HTML
+#from weasyprint import HTML
 
 def pdf_report_create(request, request_number):
     template_path = 'other_temp/pdf_template.html'

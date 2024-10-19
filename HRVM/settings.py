@@ -9,9 +9,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-4l^p++=klg#2!o(8n1^pt@k5s*jsm0=+u_ed#&j06e1g=k6@d%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1','gproject.pythonanywhere.com','192.168.1.8']
+ALLOWED_HOSTS = ['127.0.0.1','gproject.pythonanywhere.com','192.168.1.8','*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -108,7 +108,7 @@ STATIC_URL = '/base/static/'
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'base/static'),
 ]
