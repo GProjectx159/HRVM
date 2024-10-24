@@ -1,2 +1,2 @@
 web: gunicorn HRVM.wsgi --log-file -
-worker: celery -A HRVM worker --loglevel=info
+release: bash release.sh
